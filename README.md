@@ -1,5 +1,8 @@
 # Stageplay
 
+[![Run .NET Tests](https://github.com/Valax321/Stageplay/actions/workflows/dotnet-test.yml/badge.svg)](https://github.com/Valax321/Stageplay/actions/workflows/dotnet-test.yml)
+![.NET version 10.0](https://img.shields.io/badge/version-10.0-blue?logo=dotnet)
+
 Stageplay is an engine-agnostic pure C# framework for creating interactive narrative games, visual/sound novels etc. It
 is designed to be low-allocating, trim and AOT compatible and pluggable into just about any existing .NET based game
 engine or framework.
