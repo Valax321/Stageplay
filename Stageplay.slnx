@@ -12,4 +12,7 @@
   <Folder Name="/Examples/">
     <Project Path="source/examples/Stageplay.Example.MonoGame/Stageplay.Example.MonoGame.csproj" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="source/Stageplay.Runtime.Tests/Stageplay.Runtime.Tests.csproj" />
+  </Folder>
 </Solution>
