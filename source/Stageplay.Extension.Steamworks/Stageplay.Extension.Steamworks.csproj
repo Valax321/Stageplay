@@ -34,22 +34,24 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Libraries\win64\*.dll">
+        <None Remove="Libraries\**\*" />
+        
+        <None Include="Libraries\win64\*.dll">
             <Pack>true</Pack>
-            <Link>runtimes/win-x64/native</Link>
-        </Content>
-        <Content Include="Libraries\osx\*.dylib">
+            <PackagePath>runtimes/win-x64/native</PackagePath>
+        </None>
+        <None Include="Libraries\osx\*.dylib">
             <Pack>true</Pack>
-            <Link>runtimes/osx/native</Link>
-        </Content>
-        <Content Include="Libraries\linux64\*.so">
+            <PackagePath>runtimes/osx/native</PackagePath>
+        </None>
+        <None Include="Libraries\linux64\*.so">
             <Pack>true</Pack>
-            <Link>runtimes/linux-x64/native</Link>
-        </Content>
-        <Content Include="Libraries\linuxarm64\*.so">
+            <PackagePath>runtimes/linux-x64/native</PackagePath>
+        </None>
+        <None Include="Libraries\linuxarm64\*.so">
             <Pack>true</Pack>
-            <Link>runtimes/linux-arm64/native</Link>
-        </Content>
+            <PackagePath>runtimes/linux-arm64/native</PackagePath>
+        </None>
     </ItemGroup>
 
 </Project>

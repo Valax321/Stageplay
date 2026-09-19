@@ -21,4 +21,11 @@
         <MSDependencyInjectionVersion>10.0.12</MSDependencyInjectionVersion>
         <MonoGameVersion>3.8.5.1</MonoGameVersion>
     </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="GitVersion.MsBuild" Version="6.8.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 </Project>
