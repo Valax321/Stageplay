@@ -13,6 +13,8 @@
         <Title>Stageplay Steamworks Integration</Title>
         <Description>Steamworks integration package for Stageplay. Built on top of Facepunch.Steamworks.</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <!-- Facepunch.Steamworks is missing a bunch of doc comments. Shut em up -->
+        <NoWarn>1591</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup>
