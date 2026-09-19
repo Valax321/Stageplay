@@ -43,3 +43,5 @@ I also plan to natively support a Foster runtime once that project reaches a sta
 ## License
 
 Stageplay is licensed under the BSD 3-clause license. See LICENSE for details.
+
+Stageplay.Extension.Steamworks includes code from Facepunch.Steamworks, which uses the MIT license. This code is entirely contained within a git submodule in `source/thirdparty` separate from this repo.
