@@ -1,6 +1,8 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Radish.MonoGame;
 
@@ -42,19 +44,42 @@ public class StageplayGame : Game, IStandaloneSystemHost
     /// <inheritdoc/>
     public StageplayGame(IServiceProvider services)
     {
-        GraphicsDeviceManager = new GraphicsDeviceManager(this);
-
         _gameInfo = services.GetRequiredService<GameInfo>();
         _timeProvider = new GameTimeProvider();
 
         _audioProvider = new GameAudioProvider(this);
         Components.Add(_audioProvider);
 
+        var cmdLine = services.GetRequiredService<ICommandLineArguments>();
+
+        var sz = _gameInfo.DesignSize;
+        var fullscreen = true;
+
+        if (cmdLine.TryGetValue("w", out var w) && int.TryParse(w, out var ww))
+            sz.Width = ww;
+
+        if (cmdLine.TryGetValue("h", out var h) && int.TryParse(h, out var hh))
+            sz.Height = hh;
+
+        if (cmdLine.ContainsKey("window") || cmdLine.ContainsKey("windowed"))
+            fullscreen = false;
+        
+        GraphicsDeviceManager = new GraphicsDeviceManager(this)
+        {
+            GraphicsProfile = GraphicsProfile.Reach,
+            SynchronizeWithVerticalRetrace = true,
+            PreferredBackBufferWidth = sz.Width,
+            PreferredBackBufferHeight = sz.Height,
+            IsFullScreen = fullscreen
+        };
+
         SetupStuffAfterCtor();
     }
 
     private void SetupStuffAfterCtor()
     {
+        IsMouseVisible = true;
+        
         // Use the standard monogame/xna content directory.
         Content.RootDirectory = "Content";
 
@@ -69,7 +94,7 @@ public class StageplayGame : Game, IStandaloneSystemHost
 
         _timeProvider.TotalElapsed = gameTime.TotalGameTime;
         _timeProvider.DeltaTime = gameTime.ElapsedGameTime;
-
+        
         OnUpdate?.Invoke();
     }
 
