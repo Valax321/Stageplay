@@ -15,6 +15,10 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <DocumentationFile>bin\$(Configuration)\net10.0\Stageplay.Extension.Steamworks.xml</DocumentationFile>
+    </PropertyGroup>
+
     <PropertyGroup Condition="$(RadishIsWindows)">
         <DefineConstants>$(DefineConstants);PLATFORM_WIN64;PLATFORM_WIN;PLATFORM_64</DefineConstants>
     </PropertyGroup>

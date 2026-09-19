@@ -1,20 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    
-  <PropertyGroup>
-    <Description>Stageplay integration for MonoGame.</Description>
-    <Title>Stageplay MonoGame Runtime</Title>
-    <RootNamespace>Radish.MonoGame</RootNamespace>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
-    
-  <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.Native" Version="$(MonoGameVersion)">
-        <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <ProjectReference Include="..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
-  </ItemGroup>
+
+    <PropertyGroup>
+        <Description>Stageplay integration for MonoGame.</Description>
+        <Title>Stageplay MonoGame Runtime</Title>
+        <RootNamespace>Radish.MonoGame</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DocumentationFile>bin\$(Configuration)\net10.0\Stageplay.MonoGame.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MonoGame.Framework.Native" Version="$(MonoGameVersion)">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
+    </ItemGroup>
 
 </Project>

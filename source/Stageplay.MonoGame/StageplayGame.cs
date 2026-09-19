@@ -4,20 +4,42 @@ using Microsoft.Xna.Framework;
 
 namespace Radish.MonoGame;
 
+/// <summary>
+/// MonoGame <see cref="Game"/> subclass that implements the main loop host for Stageplay.
+/// </summary>
 [PublicAPI]
 public class StageplayGame : Game, IStandaloneSystemHost
 {
+    /// <summary>
+    /// The game's graphics device manager.
+    /// </summary>
     public GraphicsDeviceManager GraphicsDeviceManager { get; }
+    
+    /// <summary>
+    /// Implements the audio provider for MonoGame.
+    /// </summary>
     public IAudioProvider AudioProvider => _audioProvider;
+    
+    /// <summary>
+    /// Implements the time provider for MonoGame.
+    /// </summary>
     public ITimeProvider TimeProvider => _timeProvider;
 
+    /// <summary>
+    /// Invoked by <see cref="Game.Update"/>.
+    /// </summary>
     public event MainLoopUpdateDelegate? OnUpdate;
+    
+    /// <summary>
+    /// Invoked by <see cref="Game.EndRun"/>.
+    /// </summary>
     public event HostShutdownDelegate? OnShutdown;
 
     private GameAudioProvider _audioProvider;
     private GameTimeProvider _timeProvider;
     private GameInfo _gameInfo;
 
+    /// <inheritdoc/>
     public StageplayGame(IServiceProvider services)
     {
         GraphicsDeviceManager = new GraphicsDeviceManager(this);
@@ -40,11 +62,7 @@ public class StageplayGame : Game, IStandaloneSystemHost
         Window.Title = _gameInfo.ApplicationName;
     }
 
-    protected override void LoadContent()
-    {
-        
-    }
-
+    /// <inheritdoc/>
     protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
@@ -55,6 +73,7 @@ public class StageplayGame : Game, IStandaloneSystemHost
         OnUpdate?.Invoke();
     }
 
+    /// <inheritdoc/>
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -62,24 +81,19 @@ public class StageplayGame : Game, IStandaloneSystemHost
         base.Draw(gameTime);
     }
 
-    protected override void Dispose(bool disposing)
+    /// <inheritdoc/>
+    protected override void EndRun()
     {
-        base.Dispose(disposing);
-
-        if (disposing)
-        {
-            OnShutdown?.Invoke();
-        }
+        OnShutdown?.Invoke();
     }
 
     #region Host interface
 
-    void IStageplaySystemHost.Initialize()
-    {
-    }
-
+    /// <inheritdoc/>
     public void RunFrame()
     {
+        throw new PlatformNotSupportedException(
+            "The monogame backend does not support the per-frame main loop. Use RunWithMainLoop() instead");
     }
 
     #endregion

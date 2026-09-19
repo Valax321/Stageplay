@@ -8,6 +8,7 @@
         <ToolCommandName>stageplay-monogame-content</ToolCommandName>
         <PackageId>Stageplay.MonoGame.ContentBuilder</PackageId>
         <Description>Content builder tool for Stageplay's MonoGame runtime.</Description>
+        <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     </PropertyGroup>
 
     <ItemGroup>

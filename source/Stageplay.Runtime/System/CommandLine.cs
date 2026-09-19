@@ -10,7 +10,7 @@ internal sealed class CommandLine : ICommandLineArguments
 
     public CommandLine(ReadOnlySpan<string> args)
     {
-        var kv = new Dictionary<string, string>();
+        var kv = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         
         foreach (var c in args)
         {
