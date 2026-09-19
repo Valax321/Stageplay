@@ -5,6 +5,10 @@
         <Company>audrey.zone</Company>
         <Copyright>Copyright (c) 2026 Audrey Castillo.</Copyright>
         <RootNamespace>Radish</RootNamespace>
+        <PackageProjectUrl>https://github.com/Valax321/Stageplay</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/Valax321/Stageplay/blob/main/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/Valax321/Stageplay</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <PropertyGroup>

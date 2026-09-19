@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Stageplay Script Compiler</Title>
+        <Description>Code API for compiling Stageplay scenario scripts.</Description>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
+    </ItemGroup>
+
+</Project>
