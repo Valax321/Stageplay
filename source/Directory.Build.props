@@ -1,0 +1,24 @@
+<Project>
+    <PropertyGroup>
+        <Product>Stageplay</Product>
+        <Authors>Audrey Castillo</Authors>
+        <Company>Audrey Castillo</Company>
+        <Copyright>Copyright (c) Audrey Castillo. All rights reserved.</Copyright>
+        <RootNamespace>Radish</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>14</LangVersion>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <JetBrainsAnnotationsVersion>2026.2.0</JetBrainsAnnotationsVersion>
+        <LuaCSharpVersion>0.5.6</LuaCSharpVersion>
+        <MemoryPackVersion>1.21.4</MemoryPackVersion>
+        <MSDependencyInjectionVersion>10.0.12</MSDependencyInjectionVersion>
+        <MonoGameVersion>3.8.5.1</MonoGameVersion>
+    </PropertyGroup>
+</Project>

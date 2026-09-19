@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Engine/">
+    <Project Path="source/Stageplay.Runtime/Stageplay.Runtime.csproj" />
+  </Folder>
+  <Folder Name="/Engine/Extensions/">
+    <Project Path="source/Stageplay.Extension.Steamworks/Stageplay.Extension.Steamworks.csproj" />
+  </Folder>
+  <Folder Name="/Engine/Runtimes/">
+    <Project Path="source/Stageplay.MonoGame.ContentBuilder/Stageplay.MonoGame.ContentBuilder.csproj" />
+    <Project Path="source/Stageplay.MonoGame/Stageplay.MonoGame.csproj" />
+  </Folder>
+  <Folder Name="/Examples/">
+    <Project Path="source/examples/Stageplay.Example.MonoGame/Stageplay.Example.MonoGame.csproj" />
+  </Folder>
+</Solution>

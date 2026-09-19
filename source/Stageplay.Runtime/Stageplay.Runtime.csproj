@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+  <PropertyGroup>
+    <Description>Stageplay core runtime library.</Description>
+    <Title>Stageplay Core Runtime</Title>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="$(JetBrainsAnnotationsVersion)" />
+    <PackageReference Include="LuaCSharp" Version="$(LuaCSharpVersion)" />
+    <PackageReference Include="MemoryPack" Version="$(MemoryPackVersion)" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MSDependencyInjectionVersion)" />
+  </ItemGroup>
+
+</Project>
