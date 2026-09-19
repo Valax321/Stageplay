@@ -2,8 +2,8 @@
     <PropertyGroup>
         <Product>Stageplay</Product>
         <Authors>Audrey Castillo</Authors>
-        <Company>Audrey Castillo</Company>
-        <Copyright>Copyright (c) Audrey Castillo. All rights reserved.</Copyright>
+        <Company>audrey.zone</Company>
+        <Copyright>Copyright (c) 2026 Audrey Castillo.</Copyright>
         <RootNamespace>Radish</RootNamespace>
     </PropertyGroup>
 
