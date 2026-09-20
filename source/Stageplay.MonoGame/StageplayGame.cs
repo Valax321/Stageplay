@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Radish.Lua;
+using Radish.MonoGame.BetterContentSystem;
 
 namespace Radish.MonoGame;
 
@@ -55,6 +56,9 @@ public class StageplayGame : Game, IStandaloneSystemHost
     /// <inheritdoc/>
     public StageplayGame(IServiceProvider services)
     {
+        // I need you to understand how bad the default XNA content system is
+        Content = new GameContentManager(Services, "Content");
+        
         _gameInfo = services.GetRequiredService<GameInfo>();
         _timeProvider = new GameTimeProvider();
 
@@ -93,9 +97,6 @@ public class StageplayGame : Game, IStandaloneSystemHost
     {
         IsMouseVisible = true;
         
-        // Use the standard monogame/xna content directory.
-        Content.RootDirectory = "Content";
-
         // Set the window title
         Window.Title = _gameInfo.ApplicationName;
     }

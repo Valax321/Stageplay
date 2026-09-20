@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Radish.Lua;
 
 namespace Radish;
 
@@ -40,6 +41,7 @@ public sealed class StageplayRuntimeBuilder
     private void AddFallbackServices()
     {
         Services.TryAddSingleton<ILogSink>(new ConsoleLogSink());
+        Services.TryAddSingleton<ILuaVm, LuaVm>();
     }
     
     /// <summary>

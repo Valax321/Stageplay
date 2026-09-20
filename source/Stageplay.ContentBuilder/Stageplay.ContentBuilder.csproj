@@ -4,10 +4,17 @@
         <Title>Stageplay Script Compiler</Title>
         <Description>Code API for compiling Stageplay scenario scripts.</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <RootNamespace>Radish.ContentBuilder</RootNamespace>
+        <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CommandLineParser" Version="2.9.1" />
+      <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.12" />
     </ItemGroup>
 
 </Project>

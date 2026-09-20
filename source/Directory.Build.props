@@ -6,7 +6,7 @@
         <Copyright>Copyright (c) 2026 Audrey Castillo.</Copyright>
         <RootNamespace>Radish</RootNamespace>
         <PackageProjectUrl>https://github.com/Valax321/Stageplay</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/Valax321/Stageplay/blob/main/LICENSE</PackageLicenseUrl>
+        <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/Valax321/Stageplay</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
@@ -17,6 +17,9 @@
         <Nullable>enable</Nullable>
         <LangVersion>14</LangVersion>
         <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+        
+        <!-- Frankly I don't even know why this is a warning at all -->
+        <NoWarn>CA2255</NoWarn>
     </PropertyGroup>
     
     <PropertyGroup>

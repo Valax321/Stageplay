@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
-using Lua;
 using Lua.Platforms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Radish.Lua;
 using Radish.MonoGame.Lua;
 
 namespace Radish.MonoGame;
@@ -41,7 +41,7 @@ public static class SystemBuilderExtensions
                 new GameLuaStandardIO(),
                 TimeProvider.System
             ));
-            builder.TryAddSingletonFromGame<ILuaModuleLoader>(g => new GameLuaModuleLoader(g));
+            builder.TryAddSingletonFromGame<ILuaModuleLoaderSync>(g => new GameLuaModuleLoader(g));
 
             return builder;
         }

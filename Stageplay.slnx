@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/Engine/">
-    <Project Path="source/Stageplay.Compiler/Stageplay.Compiler.csproj" />
     <Project Path="source/Stageplay.Runtime/Stageplay.Runtime.csproj" />
+    <Project Path="source\Stageplay.ContentBuilder\Stageplay.ContentBuilder.csproj" />
   </Folder>
   <Folder Name="/Engine/Extensions/">
     <Project Path="source/Stageplay.Extension.Steamworks/Stageplay.Extension.Steamworks.csproj" />

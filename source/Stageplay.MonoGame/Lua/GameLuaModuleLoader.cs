@@ -1,9 +1,10 @@
 using Lua;
 using Microsoft.Xna.Framework.Content;
+using Radish.Lua;
 
 namespace Radish.MonoGame.Lua;
 
-internal sealed class GameLuaModuleLoader(StageplayGame game) : ILuaModuleLoader
+internal sealed class GameLuaModuleLoader(StageplayGame game) : ILuaModuleLoaderSync
 {
     private readonly Dictionary<string, LuaBytecode> _loadedModules = [];
     
@@ -26,11 +27,14 @@ internal sealed class GameLuaModuleLoader(StageplayGame game) : ILuaModuleLoader
         return true;
     }
 
-    public ValueTask<LuaModule> LoadAsync(string moduleName, CancellationToken cancellationToken = new())
+    public ValueTask<LuaModule> LoadAsync(string moduleName, CancellationToken cancellationToken = new()) 
+        => new(Load(moduleName));
+
+    public LuaModule Load(string moduleName)
     {
         if (!_loadedModules.TryGetValue(moduleName, out var module))
             throw new Exception("LoadAsync called for module that wasn't loaded. This is a bug.");
 
-        return new ValueTask<LuaModule>(module.CreateModule(moduleName));
+        return module.CreateModule(moduleName);
     }
 }
