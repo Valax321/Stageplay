@@ -1,5 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Radish.MonoGame.Graphics;
 using Radish.MonoGame.Lua;
 
 namespace Radish.MonoGame.BetterContentSystem;
@@ -16,7 +18,8 @@ internal sealed class GameContentManager(IServiceProvider serviceProvider, strin
 {
     private readonly Dictionary<Type, ContentLoader> _loaders = new()
     {
-        { typeof(LuaBytecode), new LuaBytecodeContentLoader() }
+        { typeof(LuaBytecode), new LuaBytecodeContentLoader() },
+        { typeof(Texture2D), new Texture2DContentLoader() }
     };
 
     public override T Load<T>(string assetName)
@@ -26,10 +29,13 @@ internal sealed class GameContentManager(IServiceProvider serviceProvider, strin
         
         if (!_loaders.TryGetValue(typeof(T), out var loader))
             throw new ContentLoadException($"No ContentLoader found for {typeof(T).FullName}");
+        
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+        loader.Content ??= this;
 
         try
         {
-            using var stream = OpenStream($"{assetName}.{loader.FileExtension}");
+            using var stream = OpenStream($"{assetName}.{loader.GetFileExtension(assetName)}");
             var newAsset = (T)loader.Load(stream);
             LoadedAssets[assetName] = newAsset;
             return newAsset;

@@ -10,5 +10,5 @@ internal sealed class LuaBytecodeContentLoader : ContentLoader<LuaBytecode>
         return BinaryObject.FromStream<LuaBytecode>(source);
     }
 
-    public override string FileExtension => "luac";
+    public override string GetFileExtension(string originalPath) => "luac";
 }

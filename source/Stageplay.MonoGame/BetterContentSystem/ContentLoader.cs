@@ -7,10 +7,12 @@ namespace Radish.MonoGame.BetterContentSystem;
 /// </summary>
 public abstract class ContentLoader
 {
+    protected internal ContentManager Content { get; set; } = null!;
+
     /// <summary>
     /// The extension for the cooked asset.
     /// </summary>
-    public abstract string FileExtension { get; }
+    public abstract string GetFileExtension(string originalPath);
     
     /// <summary>
     /// Loads the asset object from the given stream.

@@ -56,7 +56,10 @@ public class StageplayGame : Game, IStandaloneSystemHost
     /// <inheritdoc/>
     public StageplayGame(IServiceProvider services)
     {
-        // I need you to understand how bad the default XNA content system is
+        // Beware! The services here needs to be the MonoGame service container,
+        // not the Stageplay service provider! Unfortunately MonoGame has no way for us
+        // to provide a custom service provider, so we have no way to link the two.
+        // Its almost like XNA was badly designed...
         Content = new GameContentManager(Services, "Content");
         
         _gameInfo = services.GetRequiredService<GameInfo>();
