@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Diagnostics;
 using System.Text;
 using JetBrains.Annotations;
@@ -199,10 +198,10 @@ public class FsArcFile
     {
         var node = FindEntry(path);
         if (node is null)
-            throw new FileNotFoundException("File not found in pak", path);
+            throw new FileNotFoundException("File not found in archive", path);
 
         if (node.Type != EntryType.File)
-            throw new FileNotFoundException("Entry in pak was not a file", path);
+            throw new FileNotFoundException("Entry in archive was not a file", path);
 
         return _streamFactory.OpenWithOffset(node.Offset, node.Size);
     }
@@ -219,7 +218,7 @@ public class FsArcFile
     {
         var node = path is not null ? FindEntry(path) : _entries[0];
         if (node is null)
-            throw new DirectoryNotFoundException("Directory not found in pak");
+            throw new DirectoryNotFoundException("Directory not found in archive");
 
         if (node.ChildNodes.Count == 0)
             return [];
@@ -255,7 +254,7 @@ public class FsArcFile
     /// <param name="source">The location to load the file header from.</param>
     /// <param name="subStreamFactory">Interface that can generate streams at a given offset within a file.</param>
     /// <param name="path">The path to the rpak file.</param>
-    /// <param name="keepOpen">If true then <see cref="source"/> will not be disposed when the rpak is disposed.</param>
+    /// <param name="keepOpen">If true then <paramref name="source"/> will not be disposed when the rpak is disposed.</param>
     /// <returns>The opened rpak file.</returns>
     public static FsArcFile OpenRead(Stream source, ISubStreamFactory subStreamFactory, string path, bool keepOpen = false)
     {
@@ -263,11 +262,11 @@ public class FsArcFile
         
         var identifier = new FourCC(reader.ReadUInt32());
         if (identifier != FileIdentifier)
-            throw new FsArcReadException(path, "Invalid file identifier. File does not appear to be an rpak.");
+            throw new FsArcReadException(path, "Invalid file identifier. File does not appear to be an fsarc.");
 
         var version = reader.ReadUInt32();
         if (version != CurrentVersion)
-            throw new FsArcReadException(path, $"Unknown rpak version {version}");
+            throw new FsArcReadException(path, $"Unknown fsarc version {version}");
 
         var pak = new FsArcFile(subStreamFactory);
 
@@ -278,7 +277,7 @@ public class FsArcFile
         var entryCount = reader.ReadInt32();
         FsArcReadException.AssertIsPositive(path, entryCount);
         if (entryCount == 0)
-            throw new FsArcReadException(path, "Pak must have at least one entry node");
+            throw new FsArcReadException(path, "Archive must have at least one entry node");
 
         for (var i = 0; i < entryCount; ++i)
         {

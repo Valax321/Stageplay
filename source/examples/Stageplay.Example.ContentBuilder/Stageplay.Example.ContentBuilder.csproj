@@ -5,11 +5,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>ExampleContentBuilder</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Stageplay.ContentBuilder\Stageplay.ContentBuilder.csproj" />
-    <ProjectReference Include="..\Stageplay.Foster\Stageplay.Foster.csproj" />
+    <ProjectReference Include="..\..\Stageplay.ContentBuilder\Stageplay.ContentBuilder.csproj" />
   </ItemGroup>
 
 </Project>
