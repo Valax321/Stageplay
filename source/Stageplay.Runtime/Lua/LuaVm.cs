@@ -67,16 +67,14 @@ internal sealed class LuaVm : ILuaVm, IDisposable
     {
         try
         {
-            // TODO: is this actually a false positive?
-#pragma warning disable CA2012
             var t = State.CallAsync(func, args);
-#pragma warning restore CA2012
-            
             if (t.IsCompleted)
                 return t.Result;
 
-            t.AsTask().Wait();
-            return t.Result;
+            var tt = t.AsTask();
+            
+            tt.Wait();
+            return tt.Result;
         }
         catch (LuaRuntimeException ex)
         {

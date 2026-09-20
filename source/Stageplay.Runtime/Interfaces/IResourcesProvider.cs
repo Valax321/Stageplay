@@ -7,10 +7,7 @@ namespace Radish;
 /// Provides concrete typed resource providers for the runtime.
 /// </summary>
 [PublicAPI]
-public interface IStageplayResources
+public interface IResourcesProvider
 {
-    /// <summary>
-    /// Asset provider for lua modules.
-    /// </summary>
-    public IResourceProvider<ILuaModule> LuaModules { get; }
+    
 }

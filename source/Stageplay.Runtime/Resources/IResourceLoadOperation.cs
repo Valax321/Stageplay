@@ -6,7 +6,7 @@ namespace Radish.Resources;
 /// Wraps an asynchronous asset load request.
 /// </summary>
 /// <typeparam name="T">The type of resource being loaded.</typeparam>
-public interface IResourceLoadOperation<out T>
+public interface IResourceLoadOperation<out T> where T : class
 {
     /// <summary>
     /// Set to true when the operation completes successfully.

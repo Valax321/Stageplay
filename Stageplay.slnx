@@ -7,11 +7,17 @@
     <Project Path="source/Stageplay.Extension.Steamworks/Stageplay.Extension.Steamworks.csproj" />
     <Project Path="source/Stageplay.Extension.Steamworks/Stageplay.Extension.Steamworks.Win64.csproj" />
   </Folder>
-  <Folder Name="/Engine/Runtimes/">
+  <Folder Name="/Engine/Runtimes/" />
+  <Folder Name="/Engine/Runtimes/Foster/">
+    <Project Path="source/Stageplay.Foster.ContentBuilder/Stageplay.Foster.ContentBuilder.csproj" />
+    <Project Path="source/Stageplay.Foster/Stageplay.Foster.csproj" />
+  </Folder>
+  <Folder Name="/Engine/Runtimes/MonoGame/">
     <Project Path="source/Stageplay.MonoGame.ContentBuilder/Stageplay.MonoGame.ContentBuilder.csproj" />
     <Project Path="source/Stageplay.MonoGame/Stageplay.MonoGame.csproj" />
   </Folder>
   <Folder Name="/Examples/">
+    <Project Path="source/examples/Stageplay.Example.Foster/Stageplay.Example.Foster.csproj" />
     <Project Path="source/examples/Stageplay.Example.MonoGame/Stageplay.Example.MonoGame.csproj" />
   </Folder>
   <Folder Name="/Tests/">

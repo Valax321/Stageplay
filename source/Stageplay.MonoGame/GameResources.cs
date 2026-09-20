@@ -3,7 +3,7 @@ using Radish.MonoGame.Lua;
 
 namespace Radish.MonoGame;
 
-internal sealed class GameResources(StageplayGame game) : IStageplayResources
+internal sealed class GameResources(StageplayGame game) : IResourcesProvider
 {
     public IResourceProvider<ILuaModule> LuaModules { get; } 
         = new GameResourceProvider<ILuaModule, LuaBytecode>(game);

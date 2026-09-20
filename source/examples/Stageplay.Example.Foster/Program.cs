@@ -1,20 +1,17 @@
 ﻿using System.Drawing;
 using Radish;
-using Radish.MonoGame;
-using Radish.Steamworks;
+using Radish.Foster;
 
-var gameInfo = new GameInfo(
-    "Audrey Castillo", 
-    "Stageplay MonoGame Example",
-    "zone.audrey.monogame-example",
+var gameInfo = new GameInfo("Audrey Castillo",
+    "Stageplay Foster Example",
+    "zone.audrey.foster-example",
     Version.Parse(GitVersionInformation.AssemblySemVer),
     new Size(1920, 1080)
 );
 
 var builder = StageplayRuntimeBuilder.Create(args)
     .WithGameInfo(gameInfo)
-    .WithSteamworks(480)
-    .WithMonoGameHost<ExampleGame>();
-    
+    .WithFosterHost<ExampleApp>();
+
 using var runtime = builder.Build();
 runtime.RunWithMainLoop();

@@ -31,7 +31,7 @@ public class StageplayGame : Game, IStandaloneSystemHost
     /// <summary>
     /// Implements the game resource provider for MonoGame.
     /// </summary>
-    public IStageplayResources Resources => _gameResources;
+    public IResourcesProvider Resources => _gameResources;
 
     /// <summary>
     /// Manages game content.

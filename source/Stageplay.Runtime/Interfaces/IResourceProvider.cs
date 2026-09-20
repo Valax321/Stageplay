@@ -8,7 +8,7 @@ namespace Radish;
 /// </summary>
 /// <typeparam name="T">The type of asset to load.</typeparam>
 [PublicAPI]
-public interface IResourceProvider<T>
+public interface IResourceProvider<T> where T : class
 {
     /// <summary>
     /// Loads the requested asset synchronously.

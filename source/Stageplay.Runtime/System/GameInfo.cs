@@ -13,4 +13,4 @@ namespace Radish;
 /// Also controls the maximum aspect ratio the game will run at.
 /// </param>
 [PublicAPI]
-public record GameInfo(string Organization, string ApplicationName, Size DesignSize);
+public record GameInfo(string Organization, string ApplicationName, string ApplicationIdentifier, Version Version, Size DesignSize, string ContentDirectory = "Content");

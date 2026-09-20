@@ -7,7 +7,7 @@ namespace Radish.MonoGame;
 
 internal sealed class GameResourceProvider<TInterface, TConcrete>(StageplayGame game) 
     : IResourceProvider<TInterface> 
-    where TInterface : notnull
+    where TInterface : class
     where TConcrete : TInterface
 {
     // Because MonoGame doesn't support async loading, this implementation is trivial.

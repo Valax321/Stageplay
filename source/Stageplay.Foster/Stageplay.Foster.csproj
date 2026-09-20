@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Radish.Foster</RootNamespace>
+    <Title>Stageplay Foster Runtime</Title>
+    <Description>Stageplay integration for Foster Framework.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FosterFramework" Version="0.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -23,7 +23,7 @@ public sealed class StageplayRuntime : IDisposable
     /// <summary>
     /// Offers interfaces for loading various types of game assets.
     /// </summary>
-    public IStageplayResources Resources => _resources.Value;
+    public IResourcesProvider Resources => _resources.Value;
 
     /// <summary>
     /// The global Lua VM for the runtime.
@@ -32,14 +32,14 @@ public sealed class StageplayRuntime : IDisposable
     
     private readonly ServiceProvider _services;
     private readonly Lazy<IStageplaySystemHost> _host;
-    private readonly Lazy<IStageplayResources> _resources;
+    private readonly Lazy<IResourcesProvider> _resources;
     private readonly Lazy<ILuaVm> _lua;
     
     internal StageplayRuntime(ServiceProvider services)
     {
         _services = services;
         _host = _services.GetRequiredService<Lazy<IStageplaySystemHost>>();
-        _resources = _services.GetRequiredService<Lazy<IStageplayResources>>();
+        _resources = _services.GetRequiredService<Lazy<IResourcesProvider>>();
         _lua = _services.GetRequiredService<Lazy<ILuaVm>>();
         
         Host.OnStartup += Startup;
