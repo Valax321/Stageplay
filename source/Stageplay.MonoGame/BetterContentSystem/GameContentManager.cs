@@ -32,7 +32,7 @@ public sealed class GameContentManager(IServiceProvider serviceProvider, string 
     /// <param name="pakName">The name of the archive file. Relative to root directory, don't include extension.</param>
     /// <returns>True if loaded successfully, otherwise false.</returns>
     [PublicAPI]
-    public bool AddArchiveFile(string pakName)
+    public bool AddFsArcFile(string pakName)
     {
         var pakPath = Path.Combine(RootDirectory, $"{pakName}.{FsArcFile.FileExtension}");
         try

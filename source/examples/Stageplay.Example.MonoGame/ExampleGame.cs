@@ -6,7 +6,7 @@ public sealed class ExampleGame(IServiceProvider services) : StageplayGame(servi
 {
     protected override void LoadContent()
     {
-        Content.AddArchiveFile("data000");
+        Content.AddFsArcFile("data000");
         
         base.LoadContent();
     }
