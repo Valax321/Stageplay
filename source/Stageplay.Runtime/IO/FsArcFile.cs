@@ -49,6 +49,7 @@ public class FsArcFile
         _streamFactory = streamFactory;
     }
 
+    [DebuggerDisplay("{Name} ({Type})")]
     private class Entry(uint index, EntryType type, string name, long offset, long size, IList<Entry> childNodes, Entry? parent)
     {
         private readonly List<uint> _childIndices = [];
@@ -131,6 +132,7 @@ public class FsArcFile
         public static Entry ReadFrom(BinaryReader reader, uint index)
         {
             reader.ReadByte();
+            
             var name = reader.ReadString();
             var type = (EntryType)reader.ReadByte();
             var offset = reader.ReadInt64();
@@ -143,6 +145,7 @@ public class FsArcFile
                 e._childIndices.Add(reader.ReadUInt32());
             }
 
+            reader.ReadByte();
             return e;
         }
 
@@ -314,13 +317,15 @@ public class FsArcFile
         }
     }
 
-    public static void CreatePakFromDirectories(FileInfo outFile, DirectoryInfo dir, IReadOnlyList<string> roots)
+    public static void CreateFromDirectory(FileInfo outFile, DirectoryInfo dir)
     {
         var data = new BuildData
         {
             DestFile = outFile.OpenWrite(),
             Entries = new List<Entry>()
         };
+        
+        data.DestFile.SetLength(0);
 
         using var bw = new BinaryWriter(data.DestFile);
         bw.Write(FileIdentifier.EncodedValue);
@@ -333,13 +338,9 @@ public class FsArcFile
         // Entry 0 is always the root node
         var rootEntry = data.MakeRootEntry();
         
-        foreach (var root in roots)
+        foreach (var root in dir.EnumerateDirectories())
         {
-            var d = new DirectoryInfo(Path.Combine(dir.FullName, root));
-            if (!d.Exists)
-                continue;
-            
-            AddDirectoryRecursive(data, d, rootEntry);
+            AddDirectoryRecursive(data, root, rootEntry);
         }
 
         data.DestFile.PadBytes(4096);

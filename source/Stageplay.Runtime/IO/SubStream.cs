@@ -3,56 +3,74 @@ namespace Radish.IO;
 /// <summary>
 /// Wraps another stream to provide only a subset of its contents.
 /// </summary>
-/// <param name="owner">The stream to wrap.</param>
-/// <param name="offset">The starting offset in the stream to allow access to.</param>
-/// <param name="length">The maximum length of the stream to allow access to.</param>
-/// <param name="leaveOpen">If true <paramref name="owner"/> will be left open when this stream is disposed.</param>
-public sealed class SubStream(Stream owner, long offset, long length, bool leaveOpen = false) : Stream
+public sealed class SubStream : Stream
 {
+    private readonly Stream _owner;
+    private readonly long _offset;
+    private readonly long _length;
+    private readonly bool _leaveOpen;
+
+    /// <summary>
+    /// Wraps another stream to provide only a subset of its contents.
+    /// </summary>
+    /// <param name="owner">The stream to wrap.</param>
+    /// <param name="offset">The starting offset in the stream to allow access to.</param>
+    /// <param name="length">The maximum length of the stream to allow access to.</param>
+    /// <param name="leaveOpen">If true <paramref name="owner"/> will be left open when this stream is disposed.</param>
+    public SubStream(Stream owner, long offset, long length, bool leaveOpen = false)
+    {
+        _owner = owner;
+        _offset = offset;
+        _length = length;
+        _leaveOpen = leaveOpen;
+
+        owner.Seek(_offset, SeekOrigin.Begin);
+    }
+
     /// <inheritdoc/>
-    public override bool CanRead => owner.CanRead;
+    public override bool CanRead => _owner.CanRead;
     
     /// <inheritdoc/>
-    public override bool CanSeek => owner.CanSeek;
+    public override bool CanSeek => _owner.CanSeek;
     
     /// <inheritdoc/>
-    public override bool CanWrite => owner.CanWrite;
+    public override bool CanWrite => _owner.CanWrite;
     
     /// <inheritdoc/>
-    public override long Length => length;
+    public override long Length => _length;
 
     /// <inheritdoc/>
     public override long Position
     {
-        get => owner.Position - offset;
+        get => _owner.Position - _offset;
         set
         {
-            owner.Position = offset + value;
+            _owner.Position = _offset + value;
             
-            if (owner.Position < offset)
-                owner.Position = offset;
+            if (_owner.Position < _offset)
+                _owner.Position = _offset;
 
-            if (owner.Position >= offset + length)
-                owner.Position = owner.Position = (offset + length) - 1;
+            if (_owner.Position > _offset + _length)
+                _owner.Position = _offset + _length;
         }
     }
     
     /// <inheritdoc/>
     public override void Flush()
     {
-        owner.Flush();
+        _owner.Flush();
     }
 
     /// <inheritdoc/>
     public override int Read(byte[] buffer, int o, int count)
     {
-        var wantsWritePos = owner.Position + count;
-        var canHaveWritePos = offset + length - 1;
+        var wantsWritePos = _owner.Position + count;
+        var endPos = _offset + _length;
 
-        if (wantsWritePos > canHaveWritePos)
-            count -= (int)(wantsWritePos - canHaveWritePos);
+        if (wantsWritePos > endPos)
+            count -= (int)(wantsWritePos - endPos);
         
-        return owner.Read(buffer, o, count);
+        return _owner.Read(buffer, o, count);
     }
 
     /// <inheritdoc/>
@@ -61,17 +79,17 @@ public sealed class SubStream(Stream owner, long offset, long length, bool leave
         //FIXME: this needs bounds checking
         var newPos = origin switch
         {
-            SeekOrigin.Begin => owner.Seek(offset + o, origin),
-            SeekOrigin.Current => owner.Seek(o, SeekOrigin.Current),
-            SeekOrigin.End => owner.Seek(offset + (length - o), SeekOrigin.Begin),
+            SeekOrigin.Begin => _owner.Seek(_offset + o, origin),
+            SeekOrigin.Current => _owner.Seek(o, SeekOrigin.Current),
+            SeekOrigin.End => _owner.Seek(_offset + (_length - o), SeekOrigin.Begin),
             _ => throw new ArgumentOutOfRangeException(nameof(origin), origin, null)
         };
 
-        if (newPos < offset)
-            newPos = owner.Position = offset;
+        if (newPos < _offset)
+            newPos = _owner.Position = _offset;
 
-        if (newPos >= offset + length)
-            newPos = owner.Position = (offset + length) - 1;
+        if (newPos > _offset + _length)
+            newPos = _owner.Position = _offset + _length;
         
         return newPos;
     }
@@ -85,19 +103,19 @@ public sealed class SubStream(Stream owner, long offset, long length, bool leave
     /// <inheritdoc/>
     public override void Write(byte[] buffer, int o, int count)
     {
-        var wantsWritePos = owner.Position + count;
-        var canHaveWritePos = offset + length - 1;
+        var wantsReadPos = _owner.Position + count;
+        var endPos = _offset + _length;
 
-        if (wantsWritePos > canHaveWritePos)
-            count -= (int)(wantsWritePos - canHaveWritePos);
+        if (wantsReadPos > endPos)
+            count -= (int)(wantsReadPos - endPos);
         
-        owner.Write(buffer, o, count);
+        _owner.Write(buffer, o, count);
     }
 
     /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
-        if (disposing && !leaveOpen)
-            owner.Dispose();
+        if (disposing && !_leaveOpen)
+            _owner.Dispose();
     }
 }

@@ -77,6 +77,12 @@ public sealed class GameContentManager(IServiceProvider serviceProvider, string 
     /// <inheritdoc/>
     protected override Stream OpenStream(string assetName)
     {
+        foreach (var pak in _paks)
+        {
+            if (pak.FileExists(assetName))
+                return pak.OpenRead(assetName);
+        }
+        
         return TitleContainer.OpenStream(Path.Combine(RootDirectory, assetName));
     }
 }
