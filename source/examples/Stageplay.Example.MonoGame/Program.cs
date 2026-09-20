@@ -12,7 +12,7 @@ var gameInfo = new GameInfo(
 var builder = StageplayRuntimeBuilder.Create(args)
     .WithGameInfo(gameInfo)
     .WithSteamworks(480)
-    .WithMonoGameHost();
+    .WithMonoGameHost<ExampleGame>();
     
 using var runtime = builder.Build();
 runtime.RunWithMainLoop();

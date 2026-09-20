@@ -1,6 +1,8 @@
+using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Radish.IO;
 using Radish.MonoGame.Graphics;
 using Radish.MonoGame.Lua;
 
@@ -13,7 +15,7 @@ namespace Radish.MonoGame.BetterContentSystem;
 /// </summary>
 /// <param name="serviceProvider"></param>
 /// <param name="rootDirectory"></param>
-internal sealed class GameContentManager(IServiceProvider serviceProvider, string rootDirectory)
+public sealed class GameContentManager(IServiceProvider serviceProvider, string rootDirectory)
     : ContentManager(serviceProvider, rootDirectory)
 {
     private readonly Dictionary<Type, ContentLoader> _loaders = new()
@@ -22,14 +24,40 @@ internal sealed class GameContentManager(IServiceProvider serviceProvider, strin
         { typeof(Texture2D), new Texture2DContentLoader() }
     };
 
+    private readonly LinkedList<FsArcFile> _paks = [];
+
+    /// <summary>
+    /// Tries the load the given FSARC file.
+    /// </summary>
+    /// <param name="pakName">The name of the archive file. Relative to root directory, don't include extension.</param>
+    /// <returns>True if loaded successfully, otherwise false.</returns>
+    [PublicAPI]
+    public bool AddArchiveFile(string pakName)
+    {
+        var pakPath = Path.Combine(RootDirectory, $"{pakName}.{FsArcFile.FileExtension}");
+        try
+        {
+            _paks.AddLast(FsArcFile.OpenRead(TitleContainer.OpenStream(pakPath),
+                new TitleContainerSubstreamFactory(pakPath), pakPath));
+
+            return true;
+        }
+        catch (FileNotFoundException)
+        {
+            Log.Warning($"Failed to mount fsarc file {pakPath}");
+            return false;
+        }
+    }
+
+    /// <inheritdoc/>
     public override T Load<T>(string assetName)
     {
         if (LoadedAssets.TryGetValue(assetName, out var a))
             return (T)a;
-        
+
         if (!_loaders.TryGetValue(typeof(T), out var loader))
             throw new ContentLoadException($"No ContentLoader found for {typeof(T).FullName}");
-        
+
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         loader.Content ??= this;
 
@@ -46,6 +74,7 @@ internal sealed class GameContentManager(IServiceProvider serviceProvider, strin
         }
     }
 
+    /// <inheritdoc/>
     protected override Stream OpenStream(string assetName)
     {
         return TitleContainer.OpenStream(Path.Combine(RootDirectory, assetName));

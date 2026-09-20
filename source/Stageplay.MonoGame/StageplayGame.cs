@@ -34,6 +34,11 @@ public class StageplayGame : Game, IStandaloneSystemHost
     public IStageplayResources Resources => _gameResources;
 
     /// <summary>
+    /// Manages game content.
+    /// </summary>
+    public new GameContentManager Content => _gameContentManager;
+
+    /// <summary>
     /// Invoked by <see cref="Game.Update"/>.
     /// </summary>
     public event HostUpdateDelegate? OnUpdate;
@@ -52,6 +57,7 @@ public class StageplayGame : Game, IStandaloneSystemHost
     private GameTimeProvider _timeProvider;
     private GameResources _gameResources;
     private GameInfo _gameInfo;
+    private GameContentManager _gameContentManager;
 
     /// <inheritdoc/>
     public StageplayGame(IServiceProvider services)
@@ -60,7 +66,8 @@ public class StageplayGame : Game, IStandaloneSystemHost
         // not the Stageplay service provider! Unfortunately MonoGame has no way for us
         // to provide a custom service provider, so we have no way to link the two.
         // Its almost like XNA was badly designed...
-        Content = new GameContentManager(Services, "Content");
+        _gameContentManager = new GameContentManager(Services, "Content");
+        base.Content = _gameContentManager;
         
         _gameInfo = services.GetRequiredService<GameInfo>();
         _timeProvider = new GameTimeProvider();
