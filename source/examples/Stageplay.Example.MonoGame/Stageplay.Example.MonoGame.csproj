@@ -7,11 +7,20 @@
         <Nullable>enable</Nullable>
         <AssemblyName>MonoGameExample</AssemblyName>
         <IsPackable>false</IsPackable>
+
+        <RadishIsWindows>$([MSBuild]::IsOSPlatform('Windows'))</RadishIsWindows>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Stageplay.Extension.Steamworks\Stageplay.Extension.Steamworks.csproj" />
         <ProjectReference Include="..\..\Stageplay.MonoGame\Stageplay.MonoGame.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup Condition="!$(RadishIsWindows)">
+        <ProjectReference Include="..\..\Stageplay.Extension.Steamworks\Stageplay.Extension.Steamworks.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$(RadishIsWindows)">
+        <ProjectReference Include="..\..\Stageplay.Extension.Steamworks\Stageplay.Extension.Steamworks.Win64.csproj" />
     </ItemGroup>
 
     <ItemGroup>

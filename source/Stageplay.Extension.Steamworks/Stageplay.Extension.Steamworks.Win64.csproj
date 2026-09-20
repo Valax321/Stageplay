@@ -5,20 +5,20 @@
         <RootNamespace>Radish.Steamworks</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         
-        <PackageId>Stageplay.Steamworks</PackageId>
-        <Title>Stageplay Steamworks Integration</Title>
-        <Description>Steamworks integration package for Stageplay. Built on top of Facepunch.Steamworks.</Description>
+        <PackageId>Stageplay.Steamworks.Win64</PackageId>
+        <Title>Stageplay Steamworks Integration (Windows x64)</Title>
+        <Description>Steamworks integration package for Stageplay. Built on top of Facepunch.Steamworks. This version must be used on Windows x64 due to struct alignment differences between C compilers. Blame Microsoft.</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <!-- Facepunch.Steamworks is missing a bunch of doc comments. Shut em up -->
         <NoWarn>1591</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup>
-        <DocumentationFile>bin\$(Configuration)\net10.0\Stageplay.Extension.Steamworks.xml</DocumentationFile>
+        <DocumentationFile>bin\$(Configuration)\net10.0\Stageplay.Extension.Steamworks.Win64.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
-        <DefineConstants>$(DefineConstants);PLATFORM_POSIX</DefineConstants>
+        <DefineConstants>$(DefineConstants);PLATFORM_WIN64;PLATFORM_WIN;PLATFORM_64</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,17 +34,9 @@
     <ItemGroup>
         <None Remove="Libraries\**\*" />
         
-        <None Include="Libraries\osx\*.dylib">
+        <None Include="Libraries\win64\*.dll">
             <Pack>true</Pack>
-            <PackagePath>runtimes/osx/native</PackagePath>
-        </None>
-        <None Include="Libraries\linux64\*.so">
-            <Pack>true</Pack>
-            <PackagePath>runtimes/linux-x64/native</PackagePath>
-        </None>
-        <None Include="Libraries\linuxarm64\*.so">
-            <Pack>true</Pack>
-            <PackagePath>runtimes/linux-arm64/native</PackagePath>
+            <PackagePath>runtimes/win-x64/native</PackagePath>
         </None>
     </ItemGroup>
 
