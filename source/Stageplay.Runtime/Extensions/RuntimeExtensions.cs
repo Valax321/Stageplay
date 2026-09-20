@@ -18,7 +18,7 @@ public static class RuntimeExtensions
         {
             if (runtime.Host is not IStandaloneSystemHost l)
                 throw new InvalidOperationException(
-                    $"Cannot use {nameof(RunWithMainLoop)} without a ${nameof(IStandaloneSystemHost)}");
+                    $"Cannot use {nameof(RunWithMainLoop)} without a {nameof(IStandaloneSystemHost)}");
         
             l.Run();
         }
