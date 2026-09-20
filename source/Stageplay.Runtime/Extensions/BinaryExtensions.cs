@@ -2,7 +2,7 @@ using System.Text;
 
 namespace Radish;
 
-public static class BinaryExtensions
+internal static class BinaryExtensions
 {
     extension(Stream s)
     {
