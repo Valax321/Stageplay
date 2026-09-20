@@ -2,7 +2,7 @@ using Radish.Resources;
 
 namespace Radish.Foster.Content;
 
-public class FosterResourceProvider<TInterface, TImpl>(ContentManager content) 
+internal sealed class FosterResourceProvider<TInterface, TImpl>(ContentManager content) 
     : IResourceProvider<TInterface>
     where TInterface : class
     where TImpl : class, TInterface

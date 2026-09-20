@@ -5,19 +5,50 @@ using Radish.Foster.Content;
 
 namespace Radish.Foster;
 
+/// <summary>
+/// Runtime host for Stageplay's Foster implementation.
+/// </summary>
 [PublicAPI]
 public class StageplayApp : App, IStandaloneSystemHost
 {
+    /// <summary>
+    /// The service provider for the runtime.
+    /// </summary>
     public IServiceProvider Services { get; }
+    
+    /// <summary>
+    /// The content manager for the app.
+    /// </summary>
     public ContentManager Content { get; }
+    
+    /// <summary>
+    /// The time provider for the runtime.
+    /// </summary>
     public ITimeProvider TimeProvider { get; }
+    
+    /// <summary>
+    /// The audio provider for the runtime.
+    /// </summary>
+    /// <remarks>Foster does not have an audio implementation, so a dummy provider is used.</remarks>
     public IAudioProvider AudioProvider { get; }
+    
+    /// <summary>
+    /// The resource provider for the runtime.
+    /// </summary>
     public IResourcesProvider Resources { get; }
     
+    /// <inheritdoc/>
     public event HostStartupDelegate? OnStartup;
+    
+    /// <inheritdoc/>
     public event HostUpdateDelegate? OnUpdate;
+    
+    /// <inheritdoc/>
     public event HostShutdownDelegate? OnShutdown;
     
+    /// <summary>
+    /// Creates a new app instance. Do not call this directly, it needs to be public for dependency injection to be able to create it.
+    /// </summary>
     public StageplayApp(IServiceProvider services) : base(MakeAppConfigFromServices(services))
     {
         Services = services;
@@ -30,6 +61,7 @@ public class StageplayApp : App, IStandaloneSystemHost
         AudioProvider = new NullAudioProvider();
     }
 
+    /// <inheritdoc/>
     protected override void Startup()
     {
         Content.LoadTitleStorage();
@@ -41,14 +73,19 @@ public class StageplayApp : App, IStandaloneSystemHost
         OnStartup?.Invoke();
     }
     
+    /// <summary>
+    /// Mounts additional content paths.
+    /// </summary>
     protected virtual void MountContent()
     {}
 
+    /// <inheritdoc/>
     protected override void Shutdown()
     {
         OnShutdown?.Invoke();
     }
 
+    /// <inheritdoc/>
     protected override void Update()
     {
         if (!Content.IsTitleStorageReady)
@@ -57,6 +94,7 @@ public class StageplayApp : App, IStandaloneSystemHost
         OnUpdate?.Invoke();
     }
 
+    /// <inheritdoc/>
     protected override void Render()
     {
         if (!Content.IsTitleStorageReady)
@@ -68,6 +106,7 @@ public class StageplayApp : App, IStandaloneSystemHost
         Window.Clear(Color.CornflowerBlue);
     }
 
+    /// <inheritdoc/>
     public void RunFrame()
     {
     }

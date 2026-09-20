@@ -6,13 +6,24 @@ using Radish.Serialization;
 
 namespace Radish.Foster.Lua;
 
+/// <summary>
+/// Asset storing a blob of Lua bytecode.
+/// </summary>
 [MemoryPackable]
 public sealed partial class LuaBytecodeModule : ILuaModule, IBinarySerializable
 {
+    /// <inheritdoc/>
     public static FourCC HeaderMagic { get; } = new("LUAC");
 
+    /// <summary>
+    /// The lua bytecode blob.
+    /// </summary>
     public required byte[] Bytecode { get; init; }
     
+    /// <summary>
+    /// Creates a <see cref="LuaModule"/> containing the bytecode blob.
+    /// </summary>
+    /// <param name="name">The name of the module to create.</param>
     public LuaModule CreateModule(string name)
     {
         return new LuaModule(name, Bytecode);

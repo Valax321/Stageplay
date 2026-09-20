@@ -9,6 +9,9 @@ using SDL3;
 
 namespace Radish.Foster;
 
+/// <summary>
+/// <see cref="StageplayRuntimeBuilder"/> extensions for Foster.
+/// </summary>
 [PublicAPI]
 public static class SystemBuilderExtensions
 {
@@ -35,12 +38,13 @@ public static class SystemBuilderExtensions
             // These are required for the lua VM to work
             builder.TryAddSingletonFromApp(g => new LuaPlatform(
                 new FosterLuaFilesystem(g),
-                new FosterOSEnvironment(g),
+                new FosterOsEnvironment(g),
                 new FosterLuaStandardIO(),
                 TimeProvider.System
             ));
             builder.TryAddSingletonFromApp<ILuaModuleLoaderSync>(g => new FosterLuaModuleLoader(g));
 
+            // Set up the app metadata prior to the host being created
             builder.WithConfigure(runtime =>
             {
                 var gameInfo = runtime.Services.GetRequiredService<GameInfo>();

@@ -8,12 +8,22 @@ using SDL3;
 
 namespace Radish.Foster.Content;
 
+/// <summary>
+/// Handles the loading of assets in the runtime.
+/// </summary>
 [PublicAPI]
 public sealed class ContentManager : IDisposable
 {
     internal event Action? TitleStorageReady;
 
+    /// <summary>
+    /// If true, then title storage is ready to go.
+    /// </summary>
     public bool IsTitleStorageReady => _titleStorage is not null;
+    
+    /// <summary>
+    /// The <see cref="global::Foster.Framework.GraphicsDevice"/> for this runtime.
+    /// </summary>
     public GraphicsDevice GraphicsDevice => _app.GraphicsDevice;
     
     private StorageContainer? _titleStorage;
@@ -29,7 +39,7 @@ public sealed class ContentManager : IDisposable
         RegisterLoader<LuaBytecodeModule, LuaBytecodeModule.Loader>();
     }
 
-    public ContentManager(StageplayApp app)
+    internal ContentManager(StageplayApp app)
     {
         _app = app;
         
@@ -56,6 +66,11 @@ public sealed class ContentManager : IDisposable
         });
     }
 
+    /// <summary>
+    /// Tries to mount a fsarc file from the game's title storage.
+    /// </summary>
+    /// <param name="archiveName">The name of the archive to mount, without the extension.</param>
+    /// <returns>True if the archive could be mounted, otherwise false.</returns>
     public bool AddFsArcFile(string archiveName)
     {
         var fullArchivePath = Path.Combine(_titleStoragePath, $"{archiveName}.{FsArcFile.FileExtension}");
@@ -70,6 +85,11 @@ public sealed class ContentManager : IDisposable
         return true;
     }
 
+    /// <summary>
+    /// Checks if the given file is present in the game's filesystem.
+    /// </summary>
+    /// <param name="path">The path to check.</param>
+    /// <returns>True if found, otherwise false.</returns>
     public bool FileExists(string path)
     {
         foreach (var arc in _archives)
@@ -82,6 +102,11 @@ public sealed class ContentManager : IDisposable
         return _titleStorage?.FileExists(path) ?? false;
     }
 
+    /// <summary>
+    /// Opens a stream for the given file.
+    /// </summary>
+    /// <param name="path">The path to a file to open.</param>
+    /// <returns>The stream, or null if it could not be opened.</returns>
     public Stream? OpenRead(string path)
     {
         foreach (var arc in _archives)
@@ -99,6 +124,13 @@ public sealed class ContentManager : IDisposable
         return _titleStorage.OpenRead(path);
     }
 
+    /// <summary>
+    /// Enumerates the files and directories present in the filesystem at the given path.
+    /// </summary>
+    /// <param name="path">The path to search. If null, the root directory is searched.</param>
+    /// <param name="searchPattern">A glob pattern to use when filtering the results.</param>
+    /// <param name="searchOption">Should the search be performed recursively?</param>
+    /// <returns>The files found in the filesystem.</returns>
     public IEnumerable<string> EnumerateDirectory(string? path = null, string? searchPattern = null,
         SearchOption searchOption = SearchOption.TopDirectoryOnly)
     {
@@ -118,6 +150,12 @@ public sealed class ContentManager : IDisposable
         return items;
     }
 
+    /// <summary>
+    /// Check if an asset exists and if it can be loaded as the given type.
+    /// </summary>
+    /// <param name="assetName">The asset name to load, without its extension.</param>
+    /// <typeparam name="T">The type of asset to load.</typeparam>
+    /// <returns>True if it can be loaded, otherwise false.</returns>
     public bool Exists<T>(string assetName) where T : class
     {
         if (!Loaders.TryGetValue(typeof(T), out var loader))
@@ -127,6 +165,14 @@ public sealed class ContentManager : IDisposable
         return FileExists(path);
     }
 
+    /// <summary>
+    /// Performs a blocking load of the asset.
+    /// If loading fails for any reason, an exception is thrown.
+    /// </summary>
+    /// <seealso cref="LoadAsync"/>
+    /// <param name="assetName">The asset name to load, without its extension.</param>
+    /// <typeparam name="T">The type of asset to load.</typeparam>
+    /// <returns>The loaded asset.</returns>
     public T Load<T>(string assetName) where T : class
     {
         // Sync load just halts the current thread until the async task is finished.
@@ -139,6 +185,17 @@ public sealed class ContentManager : IDisposable
         return tt.Result;
     }
 
+    /// <summary>
+    /// Performs a non-blocking load of the asset.
+    /// If loading fails for any reason, an exception is thrown.
+    /// </summary>
+    /// <seealso cref="Load"/>
+    /// <param name="assetName">The asset name to load, without its extension.</param>
+    /// <param name="token">Cancellation token to allow cancelling the load task.</param>
+    /// <typeparam name="T">The type of asset to load.</typeparam>
+    /// <returns>The loaded asset.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if a loader is not registered for this asset type.</exception>
+    /// <exception cref="FileNotFoundException">Thrown if a stream could not be opened for the asset's file.</exception>
     public async ValueTask<T> LoadAsync<T>(string assetName, CancellationToken token = new()) where T : class
     {
         if (!Loaders.TryGetValue(typeof(T), out var loader))
@@ -149,6 +206,11 @@ public sealed class ContentManager : IDisposable
         return (T)await loader.Load(this, fs, token);
     }
     
+    /// <summary>
+    /// Register a new loader class with the content manager.
+    /// </summary>
+    /// <typeparam name="TAsset">The type of asset being loaded.</typeparam>
+    /// <typeparam name="TLoader">The type responsible for loading the asset.</typeparam>
     public static void RegisterLoader<TAsset, TLoader>()
         where TAsset : class 
         where TLoader : ContentLoader<TAsset>, new()
@@ -156,6 +218,7 @@ public sealed class ContentManager : IDisposable
         Loaders.Add(typeof(TAsset), new TLoader());
     }
     
+    /// <inheritdoc/>
     public void Dispose()
     {
         _titleStorage?.Dispose();

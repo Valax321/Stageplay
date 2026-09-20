@@ -2,7 +2,7 @@ using Lua.Platforms;
 
 namespace Radish.Foster.Lua;
 
-internal sealed class FosterOSEnvironment(StageplayApp app) : ILuaOsEnvironment
+internal sealed class FosterOsEnvironment(StageplayApp app) : ILuaOsEnvironment
 {
     public string? GetEnvironmentVariable(string name)
     {
