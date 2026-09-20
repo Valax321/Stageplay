@@ -3,9 +3,14 @@ using JetBrains.Annotations;
 namespace Radish;
 
 /// <summary>
+/// Invoked when the host has finished initialising its internals, and Stageplay can now start initialising itself.
+/// </summary>
+public delegate void HostStartupDelegate();
+
+/// <summary>
 /// Invoked every main loop tick.
 /// </summary>
-public delegate void MainLoopUpdateDelegate();
+public delegate void HostUpdateDelegate();
 
 /// <summary>
 /// Invoked when the runtime host is shutting down.
@@ -23,11 +28,16 @@ public interface IStageplaySystemHost
     /// Runs a single frame of the runtime.
     /// </summary>
     void RunFrame();
+
+    /// <summary>
+    /// Delegate invoked after the host has finished initialising.
+    /// </summary>
+    public event HostStartupDelegate OnStartup;
     
     /// <summary>
     /// Delegate invoked at the start of every game frame.
     /// </summary>
-    public event MainLoopUpdateDelegate OnUpdate;
+    public event HostUpdateDelegate OnUpdate;
     
     /// <summary>
     /// Delegate invoked when the runtime is shutting down.

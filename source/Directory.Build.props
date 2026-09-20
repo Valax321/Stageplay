@@ -25,6 +25,7 @@
         <MemoryPackVersion>1.21.4</MemoryPackVersion>
         <MSDependencyInjectionVersion>10.0.12</MSDependencyInjectionVersion>
         <MonoGameVersion>3.8.5.1</MonoGameVersion>
+        <ZStringVersion>2.6.0</ZStringVersion>
     </PropertyGroup>
     
     <ItemGroup>

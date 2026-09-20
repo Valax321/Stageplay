@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using Radish.Lua;
 
 namespace Radish.MonoGame;
 
@@ -28,17 +28,28 @@ public class StageplayGame : Game, IStandaloneSystemHost
     public ITimeProvider TimeProvider => _timeProvider;
 
     /// <summary>
+    /// Implements the game resource provider for MonoGame.
+    /// </summary>
+    public IStageplayResources Resources => _gameResources;
+
+    /// <summary>
     /// Invoked by <see cref="Game.Update"/>.
     /// </summary>
-    public event MainLoopUpdateDelegate? OnUpdate;
+    public event HostUpdateDelegate? OnUpdate;
     
     /// <summary>
     /// Invoked by <see cref="Game.EndRun"/>.
     /// </summary>
     public event HostShutdownDelegate? OnShutdown;
+    
+    /// <summary>
+    /// Invoked by <see cref="Game.LoadContent"/>
+    /// </summary>
+    public event HostStartupDelegate? OnStartup;
 
     private GameAudioProvider _audioProvider;
     private GameTimeProvider _timeProvider;
+    private GameResources _gameResources;
     private GameInfo _gameInfo;
 
     /// <inheritdoc/>
@@ -49,6 +60,8 @@ public class StageplayGame : Game, IStandaloneSystemHost
 
         _audioProvider = new GameAudioProvider(this);
         Components.Add(_audioProvider);
+
+        _gameResources = new GameResources(this);
 
         var cmdLine = services.GetRequiredService<ICommandLineArguments>();
 
@@ -88,6 +101,12 @@ public class StageplayGame : Game, IStandaloneSystemHost
     }
 
     /// <inheritdoc/>
+    protected override void LoadContent()
+    {
+        OnStartup?.Invoke();
+    }
+
+    /// <inheritdoc/>
     protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
@@ -101,7 +120,7 @@ public class StageplayGame : Game, IStandaloneSystemHost
     /// <inheritdoc/>
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
 
         base.Draw(gameTime);
     }

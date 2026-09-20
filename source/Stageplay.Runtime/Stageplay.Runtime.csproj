@@ -15,6 +15,7 @@
         <PackageReference Include="LuaCSharp" Version="$(LuaCSharpVersion)" />
         <PackageReference Include="MemoryPack" Version="$(MemoryPackVersion)" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MSDependencyInjectionVersion)" />
+        <PackageReference Include="ZString" Version="$(ZStringVersion)" />
     </ItemGroup>
 
 </Project>

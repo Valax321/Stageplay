@@ -1,6 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
+using Lua;
+using Lua.Platforms;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Radish.MonoGame.Lua;
 
 namespace Radish.MonoGame;
 
@@ -18,12 +22,26 @@ public static class SystemBuilderExtensions
         /// <typeparam name="TGame">The custom <see cref="StageplayGame"/> class to run with. The class must have a valid constructor that is supported by dependency injection.</typeparam>
         /// <returns>The same builder instance.</returns>
         public StageplayRuntimeBuilder WithMonoGameHost<
-            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TGame>()
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TGame>()
             where TGame : StageplayGame
         {
+            // Add the host itself
             builder.Services.AddSingleton<IStageplaySystemHost, TGame>();
-            builder.AddSingletonFromGame(g => g.AudioProvider);
-            builder.AddSingletonFromGame(g => g.TimeProvider);
+
+            // Core subsystems that provide high-level engine components.
+            builder.TryAddSingletonFromGame(g => g.AudioProvider);
+            builder.TryAddSingletonFromGame(g => g.TimeProvider);
+            builder.TryAddSingletonFromGame(g => g.Resources);
+
+            // These are required for the lua VM to work
+            builder.TryAddSingletonFromGame(g => new LuaPlatform(
+                new GameLuaFilesystem(),
+                new GameLuaOSEnvironment(g),
+                new GameLuaStandardIO(),
+                TimeProvider.System
+            ));
+            builder.TryAddSingletonFromGame<ILuaModuleLoader>(g => new GameLuaModuleLoader(g));
 
             return builder;
         }
@@ -40,15 +58,15 @@ public static class SystemBuilderExtensions
         /// </summary>
         /// <param name="resolver">Method to resolve the service from the game.</param>
         /// <typeparam name="T">The type of service to resolve.</typeparam>
-        public void AddSingletonFromGame<T>(Func<StageplayGame, T> resolver) where T : class
+        public void TryAddSingletonFromGame<T>(Func<StageplayGame, T> resolver) where T : class
         {
-            builder.Services.AddSingleton<T>(s =>
+            builder.Services.TryAddSingleton<T>(s =>
             {
                 var host = s.GetRequiredService<IStageplaySystemHost>();
                 if (host is not StageplayGame game)
                     throw new InvalidOperationException(
                         "Stageplay runtime host was not a MonoGame game. Did you remember to call WithMonoGameHost() on your runtime builder?");
-                
+
                 return resolver(game);
             });
         }

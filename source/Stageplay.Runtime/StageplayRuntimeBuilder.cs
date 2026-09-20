@@ -1,5 +1,7 @@
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Radish;
 
@@ -34,6 +36,11 @@ public sealed class StageplayRuntimeBuilder
         Services.AddTransient(typeof(Lazy<>), typeof(ServiceLazy<>));
         Services.AddSingleton<ICommandLineArguments>(new CommandLine(args));
     }
+
+    private void AddFallbackServices()
+    {
+        Services.TryAddSingleton<ILogSink>(new ConsoleLogSink());
+    }
     
     /// <summary>
     /// Adds a configure callback to the builder.
@@ -47,13 +54,28 @@ public sealed class StageplayRuntimeBuilder
         return this;
     }
 
+    private static void InstallLogSink(IServiceProvider services)
+    {
+        var logSink = services.GetService<ILogSink>();
+        if (logSink is not null)
+            Log.SetSink(logSink);
+    }
+
     /// <summary>
     /// Creates the actual runtime from the configuration state.
     /// </summary>
     /// <returns>A new runtime instance.</returns>
     public StageplayRuntime Build()
     {
+        AddFallbackServices();
+        
         var serviceProvider = Services.BuildServiceProvider(true);
+        InstallLogSink(serviceProvider);
+        
+        Log.Info($"Stageplay {GitVersionInformation.SemVer}+{GitVersionInformation.BranchName}.{GitVersionInformation.ShortSha}");
+        Log.Info($"Framework: {RuntimeInformation.FrameworkDescription}");
+        Log.Info($"Platform: {RuntimeInformation.OSDescription} {RuntimeInformation.ProcessArchitecture}");
+        
         var runtime = new StageplayRuntime(serviceProvider);
 
         foreach (var cb in _configureCallbacks)
