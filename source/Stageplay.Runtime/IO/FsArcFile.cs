@@ -189,6 +189,12 @@ public class FsArcFile
         return node.Type == EntryType.Directory;
     }
     
+    /// <summary>
+    /// Opens a file in the fsarc.
+    /// </summary>
+    /// <param name="path">The path to open.</param>
+    /// <returns>Stream for the file.</returns>
+    /// <exception cref="FileNotFoundException">Thrown if the file is not present in the archive.</exception>
     public Stream OpenRead(string path)
     {
         var node = FindEntry(path);
@@ -201,6 +207,13 @@ public class FsArcFile
         return _streamFactory.OpenWithOffset(node.Offset, node.Size);
     }
 
+    /// <summary>
+    /// Enumerates the files and directories present in the archive at the path.
+    /// </summary>
+    /// <param name="path">The path to enumerate. If null, the root directory is enumerated.</param>
+    /// <param name="searchOption">Controls whether enumeration should be done recursively.</param>
+    /// <returns>The file system entries found in the directory.</returns>
+    /// <exception cref="DirectoryNotFoundException">Thrown if <paramref name="path"/> is not a valid directory in the archive.</exception>
     public IEnumerable<(string, EntryType)> EnumerateDirectory(string? path = null,
         SearchOption searchOption = SearchOption.TopDirectoryOnly)
     {
@@ -318,6 +331,12 @@ public class FsArcFile
         }
     }
 
+    /// <summary>
+    /// Creates a new fsarc file from the given directory.
+    /// TODO: we should offer a way to exclude items on a per-file basis.
+    /// </summary>
+    /// <param name="outFile">The file to write the fsarc data to.</param>
+    /// <param name="dir">The directory to package files from.</param>
     public static void CreateFromDirectory(FileInfo outFile, DirectoryInfo dir)
     {
         var data = new BuildData
