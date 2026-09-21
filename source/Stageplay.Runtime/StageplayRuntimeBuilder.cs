@@ -1,88 +1,34 @@
-using System.Runtime.InteropServices;
-using JetBrains.Annotations;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Radish.Lua;
+using Radish.Platform;
+using SDL3;
 
 namespace Radish;
 
-/// <summary>
-/// Configuration builder object for setting up runtime configuration.
-/// </summary>
-[PublicAPI]
 public sealed class StageplayRuntimeBuilder
 {
-    /// <summary>
-    /// Creates a new runtime configuration builder.
-    /// </summary>
-    /// <param name="args">The program's command line arguments.</param>
-    /// <returns>A new runtime builder.</returns>
-    public static StageplayRuntimeBuilder Create(ReadOnlySpan<string> args) => new(args);
+    private StageplayRuntime.StartupInfo StartupInfo;
     
-    /// <summary>
-    /// The service collection that this builder is building.
-    /// </summary>
-    public ServiceCollection Services { get; }
+    public Func<StageplayRuntime, IPlatformAchievements>? AchievementsProviderFactory { get; set; }
 
-    private LinkedList<Action<StageplayRuntime>> _configureCallbacks = [];
+    private readonly LinkedList<Action<StageplayRuntime>> _initCallbacks = [];
 
-    private StageplayRuntimeBuilder(ReadOnlySpan<string> args)
+    internal StageplayRuntimeBuilder(StageplayRuntime.StartupInfo info)
     {
-        Services = new ServiceCollection();
-        AddDefaultServices(args);
+        StartupInfo = info;
     }
 
-    private void AddDefaultServices(ReadOnlySpan<string> args)
-    {
-        Services.AddTransient(typeof(Lazy<>), typeof(ServiceLazy<>));
-        Services.AddSingleton<ICommandLineArguments>(new CommandLine(args));
-    }
+    public void AddInitCallback(Action<StageplayRuntime> func) => _initCallbacks.AddLast(func);
 
-    private void AddFallbackServices()
-    {
-        Services.TryAddSingleton<ILogSink>(new ConsoleLogSink());
-        Services.TryAddSingleton<ILuaVm, LuaVm>();
-    }
-    
-    /// <summary>
-    /// Adds a configure callback to the builder.
-    /// The callback will be invoked just after the runtime is created.
-    /// </summary>
-    /// <param name="configureCallback">Method to do post-build configure work with.</param>
-    /// <returns>Same builder instance, for fluent API calls.</returns>
-    public StageplayRuntimeBuilder WithConfigure(Action<StageplayRuntime> configureCallback)
-    {
-        _configureCallbacks.AddLast(configureCallback);
-        return this;
-    }
-
-    private static void InstallLogSink(IServiceProvider services)
-    {
-        var logSink = services.GetService<ILogSink>();
-        if (logSink is not null)
-            Log.SetSink(logSink);
-    }
-
-    /// <summary>
-    /// Creates the actual runtime from the configuration state.
-    /// </summary>
-    /// <returns>A new runtime instance.</returns>
     public StageplayRuntime Build()
     {
-        AddFallbackServices();
-        
-        var serviceProvider = Services.BuildServiceProvider(true);
-        InstallLogSink(serviceProvider);
-        
-        Log.Info($"Stageplay {GitVersionInformation.SemVer}+{GitVersionInformation.BranchName}.{GitVersionInformation.ShortSha}");
-        Log.Info($"Framework: {RuntimeInformation.FrameworkDescription}");
-        Log.Info($"Platform: {RuntimeInformation.OSDescription} {RuntimeInformation.ProcessArchitecture}");
-        
-        var runtime = new StageplayRuntime(serviceProvider);
+        SDL.SDL_SetAppMetadata(
+            StartupInfo.GameInfo.ApplicationName,
+            StartupInfo.GameInfo.Version.ToString(3),
+            StartupInfo.GameInfo.ApplicationIdentifier
+        );
 
-        foreach (var cb in _configureCallbacks)
-            cb(runtime);
+        SDL.SDL_SetAppMetadataProperty(SDL.SDL_PROP_APP_METADATA_CREATOR_STRING, StartupInfo.GameInfo.Organization);
+        SDL.SDL_SetAppMetadataProperty(SDL.SDL_PROP_APP_METADATA_TYPE_STRING, "game");
 
-        return runtime;
+        return new StageplayRuntime(StartupInfo, new StageplayRuntime.PlatformSystemImplementations(AchievementsProviderFactory), _initCallbacks);
     }
 }

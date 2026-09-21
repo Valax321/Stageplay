@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Nullable>disable</Nullable>
+        <RootNamespace>Radish.Steamworks</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+        <PackageId>Stageplay.Steamworks</PackageId>
+        <Title>Stageplay Steamworks Integration</Title>
+        <Description>Steamworks integration package for Stageplay. Built on top of Facepunch.Steamworks.</Description>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DocumentationFile>bin\$(Configuration)\net10.0\Stageplay.Extension.Steamworks.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
+        <ProjectReference Include="..\thirdparty\Facepunch.Steamworks\Facepunch.Steamworks\Facepunch.Steamworks.Posix.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Libraries\**\*" />
+
+        <None Include="Libraries\win64\*.dll">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/win-x64/native</PackagePath>
+        </None>
+        <None Include="Libraries\osx\*.dylib">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/osx/native</PackagePath>
+        </None>
+        <None Include="Libraries\linux64\*.so">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/linux-x64/native</PackagePath>
+        </None>
+        <None Include="Libraries\linuxarm64\*.so">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/linux-arm64/native</PackagePath>
+        </None>
+    </ItemGroup>
+
+</Project>

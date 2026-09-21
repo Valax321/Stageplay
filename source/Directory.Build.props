@@ -6,7 +6,7 @@
         <Copyright>Copyright (c) 2026 Audrey Castillo.</Copyright>
         <RootNamespace>Radish</RootNamespace>
         <PackageProjectUrl>https://github.com/Valax321/Stageplay</PackageProjectUrl>
-        <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+        <PackageLicenseExpression>Zlib</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/Valax321/Stageplay</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
@@ -29,6 +29,7 @@
         <MSDependencyInjectionVersion>10.0.12</MSDependencyInjectionVersion>
         <MonoGameVersion>3.8.5.1</MonoGameVersion>
         <ZStringVersion>2.6.0</ZStringVersion>
+        <FosterFrameworkVersion>0.4.2</FosterFrameworkVersion>
     </PropertyGroup>
     
     <ItemGroup>

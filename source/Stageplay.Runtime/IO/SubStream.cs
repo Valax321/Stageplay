@@ -3,7 +3,7 @@ namespace Radish.IO;
 /// <summary>
 /// Wraps another stream to provide only a subset of its contents.
 /// </summary>
-public sealed class SubStream : Stream
+internal sealed class SubStream : Stream
 {
     private readonly Stream _owner;
     private readonly long _offset;

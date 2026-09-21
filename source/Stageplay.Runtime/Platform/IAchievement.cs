@@ -1,4 +1,4 @@
-namespace Radish;
+namespace Radish.Platform;
 
 /// <summary>
 /// Interface to a single achievement.
