@@ -1,10 +1,17 @@
+using Foster.Framework;
 using JetBrains.Annotations;
-using Radish.Resources;
 
 namespace Radish.Content;
 
+/// <summary>
+/// Typed caches for runtime data types.
+/// </summary>
+/// <param name="app"></param>
 [PublicAPI]
 public class GameResources(StageplayRuntime app)
 {
-    public ResourceProvider<LuaBytecodeModule> LuaModules { get; } = new(app.Content);
+    /// <summary>
+    /// Provides a resource cache for textures.
+    /// </summary>
+    public ResourceProvider<Texture> Textures { get; } = new(app.Content);
 }

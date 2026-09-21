@@ -8,7 +8,8 @@ namespace Radish.Resources;
 /// </summary>
 /// <typeparam name="T">The type of resource being loaded.</typeparam>
 [PublicAPI]
-public interface IResourceLoadOperation<out T> where T : class
+public interface IResourceLoadOperation<out T>
+    where T : class
 {
     /// <summary>
     /// Set to true when the operation completes successfully.
