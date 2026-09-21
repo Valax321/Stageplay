@@ -1,10 +1,10 @@
 namespace Radish.ContentBuilder.Utility;
 
-public static class QueueExtensions
+internal static class QueueExtensions
 {
     extension<T>(Queue<T> queue)
     {
-        public IEnumerable<T> ConsumeAll()
+        public IEnumerable<T> Drain()
         {
             while (queue.TryDequeue(out var o))
                 yield return o;

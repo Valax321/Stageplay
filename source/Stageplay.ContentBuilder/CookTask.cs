@@ -1,11 +1,21 @@
+using JetBrains.Annotations;
+
 namespace Radish.ContentBuilder;
 
+/// <summary>
+/// Implements a verb to process all content files in a directory into game assets.
+/// </summary>
+/// <typeparam name="TRecipe">A type implementing <see cref="ICookRecipe"/> describing the processors that need to be invoked.</typeparam>
+[PublicAPI]
 public class CookTask<TRecipe> : BuilderTask
     where TRecipe : ICookRecipe, new()
 {
     private readonly ICookRecipe _recipe;
 
-    public CookTask()
+    /// <summary>
+    /// Creates a new cook task containing the provided recipe type.
+    /// </summary>
+    protected CookTask()
     {
         _recipe = new TRecipe
         {
@@ -13,6 +23,7 @@ public class CookTask<TRecipe> : BuilderTask
         };
     }
     
+    /// <inheritdoc/>
     public override async Task<int> RunAsync()
     {
         var queue = new ProcessorQueue(new DirectoryInfo(ContentPath), new DirectoryInfo(OutputPath));
