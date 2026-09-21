@@ -119,7 +119,7 @@ public sealed class ContentManager : IDisposable
 
         return _titleStorage.OpenRead(path);
     }
-
+    
     /// <summary>
     /// Enumerates the files and directories present in the filesystem at the given path.
     /// </summary>

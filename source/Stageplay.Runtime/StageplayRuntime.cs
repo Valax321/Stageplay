@@ -2,6 +2,8 @@
 using Foster.Framework;
 using JetBrains.Annotations;
 using Radish.Content;
+using Radish.Debugger;
+using Radish.Graphics;
 using Radish.IO;
 using Radish.Lua;
 using Radish.Platform;
@@ -79,6 +81,9 @@ public sealed class StageplayRuntime : App
     /// Invoked after all other game systems have shut down.
     /// </summary>
     public event Action? OnShutdown;
+
+    private Renderer _renderer;
+    private DebugMenu _debugMenu;
     
     /// <summary>
     /// Creates a new app instance. Do not call this directly, it needs to be public for dependency injection to be able to create it.
@@ -96,6 +101,9 @@ public sealed class StageplayRuntime : App
         Game = info.GameFactory(this);
         Content = new ContentManager(this);
         Lua = new LuaVM(this);
+        
+        _debugMenu = new DebugMenu(this);
+        _renderer = new Renderer(GraphicsDevice, _debugMenu);
 
         if (platformImpl.AchievementsFactory is not null)
             Achievements = platformImpl.AchievementsFactory(this);
@@ -128,6 +136,8 @@ public sealed class StageplayRuntime : App
         Log.Info("Runtime shutdown");
         
         Game.PreShutdown();
+        
+        _renderer.Dispose();
         Lua.Dispose();
         Content.Dispose();
         OnShutdown?.Invoke();
@@ -156,7 +166,7 @@ public sealed class StageplayRuntime : App
             return;
         }
         
-        Window.Clear(Color.CornflowerBlue);
+        _renderer.DrawFrame(Window);
     }
     
     private static AppConfig MakeAppConfigFromStartupInfo(StartupInfo startupInfo)
