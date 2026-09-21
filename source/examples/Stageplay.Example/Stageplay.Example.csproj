@@ -9,7 +9,33 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
+        <ProjectReference Include="..\..\Stageplay.Platform.Steamworks\Stageplay.Platform.Steamworks.csproj" />
+        <ProjectReference Include="..\..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="steam_appid.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\Stageplay.Platform.Steamworks\Libraries\win64\*.dll">
+            <Link>runtimes\win-x64\native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="..\..\Stageplay.Platform.Steamworks\Libraries\osx\*.dylib">
+            <Link>runtimes\osx\native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="..\..\Stageplay.Platform.Steamworks\Libraries\linux64\*.so">
+            <Link>runtimes\linux-x64\native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="..\..\Stageplay.Platform.Steamworks\Libraries\linuxarm64\*.so">
+            <Link>runtimes\linux-arm64\native\%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>

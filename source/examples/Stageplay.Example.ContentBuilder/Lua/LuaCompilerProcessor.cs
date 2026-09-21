@@ -1,6 +1,6 @@
 using Lua;
 using Radish.ContentBuilder.AssetProcessors;
-using Radish.Foster.Lua;
+using Radish.Resources;
 using Radish.Serialization;
 
 namespace Radish.Lua;

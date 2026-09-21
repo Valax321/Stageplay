@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 using Radish;
-using Radish.Foster;
+using Radish.Steamworks;
 
 var gameInfo = new GameInfo("Audrey Castillo",
     "Stageplay Foster Example",
@@ -11,7 +11,8 @@ var gameInfo = new GameInfo("Audrey Castillo",
 
 var builder = StageplayRuntimeBuilder.Create(args)
     .WithGameInfo(gameInfo)
-    .WithFosterHost<ExampleApp>();
+    .WithSteamworks(480)
+    .WithCoreSystemComponents<ExampleGame>();
 
 using var runtime = builder.Build();
-runtime.RunWithMainLoop();
+runtime.Run();
