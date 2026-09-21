@@ -12,6 +12,15 @@
         <ProjectReference Include="..\..\Stageplay.Platform.Steamworks\Stageplay.Platform.Steamworks.csproj" />
         <ProjectReference Include="..\..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <!-- 
+            This needs to be manually added to the game project, 
+            since the stageplay steamworks library intentionally makes the dependency private
+            so that it can transparently use either the Win64 or Posix build at runtime.
+        -->
+        <ProjectReference Include="..\..\thirdparty\Facepunch.Steamworks\Facepunch.Steamworks\Facepunch.Steamworks.Posix.csproj" />
+    </ItemGroup>
 
     <ItemGroup>
         <None Update="steam_appid.txt">

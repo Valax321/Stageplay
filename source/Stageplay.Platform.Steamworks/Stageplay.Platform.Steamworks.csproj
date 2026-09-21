@@ -17,7 +17,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
-        <ProjectReference Include="..\thirdparty\Facepunch.Steamworks\Facepunch.Steamworks\Facepunch.Steamworks.Posix.csproj" />
+        <ProjectReference Include="..\thirdparty\Facepunch.Steamworks\Facepunch.Steamworks\Facepunch.Steamworks.Posix.csproj" Private="false" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
