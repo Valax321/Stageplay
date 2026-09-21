@@ -73,7 +73,7 @@ public sealed class ContentManager : IDisposable
         if (arcStorage is null)
         {
             Log.Warning(
-                $"Failed to mount fsarc file {Path.GetRelativePath(AppContext.BaseDirectory, fullArchivePath)}");
+                $"Failed to mount fsarc file {fullArchivePath}");
             return false;
         }
 
