@@ -6,7 +6,7 @@
         <Copyright>Copyright (c) 2026 Audrey Castillo.</Copyright>
         <RootNamespace>Radish</RootNamespace>
         <PackageProjectUrl>https://github.com/Valax321/Stageplay</PackageProjectUrl>
-        <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+        <PackageLicenseExpression>Zlib</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/Valax321/Stageplay</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
