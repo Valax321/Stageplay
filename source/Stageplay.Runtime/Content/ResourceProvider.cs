@@ -2,10 +2,8 @@ using Radish.Resources;
 
 namespace Radish.Content;
 
-internal sealed class FosterResourceProvider<TInterface, TImpl>(ContentManager content) 
-    : IResourceProvider<TInterface>
-    where TInterface : class
-    where TImpl : class, TInterface
+public sealed class ResourceProvider<TImpl>(ContentManager content)
+    where TImpl : class
 {
     private record Ref(string Path, TImpl Asset);
     
@@ -22,7 +20,7 @@ internal sealed class FosterResourceProvider<TInterface, TImpl>(ContentManager c
         return null;
     }
     
-    private LinkedListNode<Ref>? FindInCacheByAsset(TInterface asset)
+    private LinkedListNode<Ref>? FindInCacheByAsset(TImpl asset)
     {
         for (var n = _cache.First; n != null; n = n.Next)
         {
@@ -33,7 +31,7 @@ internal sealed class FosterResourceProvider<TInterface, TImpl>(ContentManager c
         return null;
     }
     
-    public TInterface? LoadSync(string path)
+    public TImpl? LoadSync(string path)
     {
         var refNode = FindInCacheByPath(path);
         if (refNode is not null)
@@ -48,21 +46,21 @@ internal sealed class FosterResourceProvider<TInterface, TImpl>(ContentManager c
         return asset;
     }
 
-    public IResourceLoadOperation<TInterface>? LoadAsync(string path)
+    public IResourceLoadOperation<TImpl>? LoadAsync(string path)
     {
         var refNode = FindInCacheByPath(path);
         if (refNode is not null)
-            return new FosterEmptyLoadOperation<TInterface>(refNode.Value.Asset);
+            return new SyncResourceLoadOperation<TImpl>(refNode.Value.Asset);
         
         if (!content.Exists<TImpl>(path))
             return null;
 
         var cts = new CancellationTokenSource();
         var task = content.LoadAsync<TImpl>(path, cts.Token);
-        return new FosterTaskLoadOperation<TInterface, TImpl>(task.AsTask(), cts);
+        return new TaskResourceLoadOperation<TImpl>(task.AsTask(), cts);
     }
 
-    public void Unload(TInterface asset)
+    public void Unload(TImpl asset)
     {
         var refNode = FindInCacheByAsset(asset);
         if (refNode is not null)

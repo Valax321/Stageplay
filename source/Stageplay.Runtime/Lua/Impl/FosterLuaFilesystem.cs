@@ -1,21 +1,12 @@
 using Lua.IO;
-using Microsoft.Extensions.DependencyInjection;
-using Radish.Content;
 
 namespace Radish.Lua.Impl;
 
-internal sealed class FosterLuaFilesystem : ILuaFileSystem
+internal sealed class FosterLuaFilesystem(StageplayRuntime app) : ILuaFileSystem
 {
-    private readonly Lazy<ContentManager> _content;
-
-    public FosterLuaFilesystem(StageplayRuntime app)
-    {
-        _content = app.Services.GetRequiredService<Lazy<ContentManager>>();
-    }
-
     public bool IsReadable(string path)
     {
-        return _content.Value.FileExists(path);
+        return app.Content.FileExists(path);
     }
 
     public ValueTask<ILuaStream> Open(string path, LuaFileOpenMode mode, CancellationToken cancellationToken)
@@ -23,7 +14,7 @@ internal sealed class FosterLuaFilesystem : ILuaFileSystem
         if (mode is not LuaFileOpenMode.Read)
             throw new PlatformNotSupportedException("Only read-only lua streams are supported");
 
-        var fs = _content.Value.OpenRead(path) 
+        var fs = app.Content.OpenRead(path) 
                  ?? throw new FileNotFoundException("Could not open stream for path", path);
 
         return new ValueTask<ILuaStream>(new LuaStream(mode, fs));

@@ -1,6 +1,4 @@
 ﻿using JetBrains.Annotations;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Steamworks;
 
 namespace Radish.Steamworks;
@@ -22,26 +20,23 @@ public static class RuntimeBuilderExtensions
         /// <returns>The input builder instance.</returns>
         public StageplayRuntimeBuilder WithSteamworks(uint appId, bool callRestartAppIfNecessary = true)
         {
-            builder.Services.TryAddSingleton<IPlatformAchievements, SteamworksAchievements>();
+            if (callRestartAppIfNecessary && SteamClient.RestartAppIfNecessary(appId))
+                Environment.Exit(0);
 
-            builder.WithConfigure(runtime =>
+            try
             {
-                if (callRestartAppIfNecessary && SteamClient.RestartAppIfNecessary(appId))
-                    Environment.Exit(0);
-
-                try
-                {
-                    SteamClient.Init(appId, asyncCallbacks: false);
-                }
-                catch (Exception)
-                {
-                    return;
-                }
-
-                var lifecycleHooks = runtime.Services.GetRequiredService<IRuntimeLifecycleHooks>();
-
-                lifecycleHooks.OnUpdate += SteamClient.RunCallbacks;
-                lifecycleHooks.OnShutdown += SteamClient.Shutdown;
+                SteamClient.Init(appId, asyncCallbacks: false);
+            }
+            catch (Exception)
+            {
+                return builder;
+            }
+            
+            builder.AchievementsProviderFactory = _ => new SteamworksAchievements();
+            builder.AddInitCallback(runtime =>
+            {
+                runtime.OnPreUpdate += SteamClient.RunCallbacks;
+                runtime.OnShutdown += SteamClient.Shutdown;
             });
 
             return builder;

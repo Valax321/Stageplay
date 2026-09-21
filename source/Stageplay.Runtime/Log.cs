@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Radish.IO;
 using Radish.Utility;
 
 namespace Radish;
@@ -24,7 +25,7 @@ public static class Log
         }
     }
     
-    private static ILogSink? _sink;
+    private static ILogSink _sink = new ConsoleLogSink();
 
     internal static void SetSink(ILogSink sink)
     {

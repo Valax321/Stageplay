@@ -33,9 +33,9 @@ public sealed partial class LuaBytecodeModule : ILuaModule, IBinarySerializable
     
     internal sealed class Loader : ContentLoader<LuaBytecodeModule>
     {
-        public override string GetFileExtension(IContentManager content, string originalPath) => ".luac";
+        public override string GetFileExtension(ContentManager content, string originalPath) => ".luac";
 
-        protected override async ValueTask<LuaBytecodeModule> LoadTyped(IContentManager content, Stream source, CancellationToken token)
+        protected override async ValueTask<LuaBytecodeModule> LoadTyped(ContentManager content, Stream source, CancellationToken token)
         {
             return await BinaryObject.FromStreamAsync<LuaBytecodeModule>(source);
         }

@@ -3,7 +3,7 @@ using Radish.IO;
 
 namespace Radish.Content;
 
-internal sealed class SimpleSubstreamFactory(FileInfo file) : ISubStreamFactory
+internal sealed class FileSubstreamFactory(FileInfo file) : ISubStreamFactory
 {
     public Stream OpenWithOffset(long offset, long length)
     {
@@ -22,7 +22,7 @@ internal sealed class FsArcStorage : StorageContainer
         if (!file.Exists)
             return null;
 
-        var arc = FsArcFile.OpenRead(file.OpenRead(), new SimpleSubstreamFactory(file), file.FullName);
+        var arc = FsArcFile.OpenRead(file.OpenRead(), new FileSubstreamFactory(file), file.FullName);
         return new FsArcStorage(arc);
     }
     

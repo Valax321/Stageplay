@@ -1,4 +1,4 @@
-namespace Radish;
+namespace Radish.Platform;
 
 /// <summary>
 /// Provides access to the game platform's achievement APIs.

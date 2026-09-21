@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 namespace Radish.Resources;
 
@@ -6,6 +7,7 @@ namespace Radish.Resources;
 /// Wraps an asynchronous asset load request.
 /// </summary>
 /// <typeparam name="T">The type of resource being loaded.</typeparam>
+[PublicAPI]
 public interface IResourceLoadOperation<out T> where T : class
 {
     /// <summary>

@@ -13,7 +13,7 @@ public abstract class ContentLoader
     /// </summary>
     /// <param name="content">The <see cref="ContentManager"/> requesting the load.</param>
     /// <param name="originalPath">The asset path without the loader-specific extension.</param>
-    public abstract string GetFileExtension(IContentManager content, string originalPath);
+    public abstract string GetFileExtension(ContentManager content, string originalPath);
 
     /// <summary>
     /// Loads the asset object from the given stream.
@@ -22,7 +22,7 @@ public abstract class ContentLoader
     /// <param name="source">The stream to load from.</param>
     /// <param name="token"></param>
     /// <returns>The loaded asset.</returns>
-    public abstract ValueTask<object> Load(IContentManager content, Stream source, CancellationToken token = new());
+    public abstract ValueTask<object> Load(ContentManager content, Stream source, CancellationToken token = new());
 }
 
 /// <summary>
@@ -39,9 +39,9 @@ public abstract class ContentLoader<T> : ContentLoader
     /// <param name="source">The stream to load from.</param>
     /// <param name="token"></param>
     /// <returns>The loaded asset.</returns>
-    protected abstract ValueTask<T> LoadTyped(IContentManager content, Stream source, CancellationToken token);
+    protected abstract ValueTask<T> LoadTyped(ContentManager content, Stream source, CancellationToken token);
 
     /// <inheritdoc/>
-    public override async ValueTask<object> Load(IContentManager content, Stream source, CancellationToken token = new()) 
+    public override async ValueTask<object> Load(ContentManager content, Stream source, CancellationToken token = new()) 
         => await LoadTyped(content, source, token);
 }

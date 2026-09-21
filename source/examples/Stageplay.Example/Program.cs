@@ -9,10 +9,8 @@ var gameInfo = new GameInfo("Audrey Castillo",
     new Size(1920, 1080)
 );
 
-var builder = StageplayRuntimeBuilder.Create(args)
-    .WithGameInfo(gameInfo)
+using var runtime = StageplayRuntime.CreateWithGame<ExampleGame>(args, gameInfo)
     .WithSteamworks(480)
-    .WithCoreSystemComponents<ExampleGame>();
-
-using var runtime = builder.Build();
+    .Build();
+    
 runtime.Run();

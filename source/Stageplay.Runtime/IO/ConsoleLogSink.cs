@@ -1,4 +1,4 @@
-namespace Radish;
+namespace Radish.IO;
 
 /// <summary>
 /// Writes log messages to the .NET <see cref="Console"/>.

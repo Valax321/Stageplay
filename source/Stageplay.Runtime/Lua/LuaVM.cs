@@ -1,18 +1,25 @@
+using JetBrains.Annotations;
 using Lua;
 using Lua.Platforms;
-using Microsoft.Extensions.DependencyInjection;
+using Radish.Lua.Impl;
 
 namespace Radish.Lua;
 
-internal sealed class LuaVm : ILuaVm, IDisposable
+[PublicAPI]
+public sealed class LuaVM : IDisposable
 {
     public LuaState State { get; }
 
-    public LuaVm(IServiceProvider services)
+    internal LuaVM(StageplayRuntime app)
     {
-        State = LuaState.Create(services.GetRequiredService<LuaPlatform>());
-        State.ModuleLoader = services.GetRequiredService<ILuaModuleLoaderSync>();
-        
+        State = LuaState.Create(new LuaPlatform(
+            new FosterLuaFilesystem(app),
+            new FosterOsEnvironment(app),
+            new FosterLuaStandardIO(),
+            TimeProvider.System
+        ));
+        State.ModuleLoader = new FosterLuaModuleLoader(app);
+
         SetupGlobals();
     }
 
@@ -23,12 +30,22 @@ internal sealed class LuaVm : ILuaVm, IDisposable
         env["warn"] = LuaStaticVmFunctions.LogWarning;
         env["error"] = LuaStaticVmFunctions.LogError;
     }
-    
+
+    internal void LoadMainModule()
+    {
+        if (LoadAndExecuteModule("main"))
+        {
+            var mainFunc = FindGlobalFunction("main");
+            if (mainFunc is not null)
+                CallSync(mainFunc);
+        }
+    }
+
     public bool LoadAndExecuteModule(string moduleName)
     {
         if (!State.ModuleLoader!.Exists(moduleName))
             return false;
-        
+
         var module = ((ILuaModuleLoaderSync)State.ModuleLoader!).Load(moduleName);
         var c = module.Type switch
         {
@@ -72,7 +89,7 @@ internal sealed class LuaVm : ILuaVm, IDisposable
                 return t.Result;
 
             var tt = t.AsTask();
-            
+
             tt.Wait();
             return tt.Result;
         }

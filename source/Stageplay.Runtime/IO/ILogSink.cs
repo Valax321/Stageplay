@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Radish;
+namespace Radish.IO;
 
 /// <summary>
 /// Provides the formatted string for a sink log call.

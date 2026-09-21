@@ -10,7 +10,7 @@ namespace Radish.IO;
 /// A container for a read-only filesystem.
 /// </summary>
 [PublicAPI]
-public class FsArcFile
+public sealed class FsArcFile
 {
     private static readonly FourCC FileIdentifier = new("RPAK");
     private const uint CurrentVersion = 2;
