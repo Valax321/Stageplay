@@ -22,16 +22,6 @@
         <NoWarn>CA2255</NoWarn>
     </PropertyGroup>
     
-    <PropertyGroup>
-        <JetBrainsAnnotationsVersion>2026.2.0</JetBrainsAnnotationsVersion>
-        <LuaCSharpVersion>0.5.6</LuaCSharpVersion>
-        <MemoryPackVersion>1.21.4</MemoryPackVersion>
-        <MSDependencyInjectionVersion>10.0.12</MSDependencyInjectionVersion>
-        <MonoGameVersion>3.8.5.1</MonoGameVersion>
-        <ZStringVersion>2.6.0</ZStringVersion>
-        <FosterFrameworkVersion>0.4.2</FosterFrameworkVersion>
-    </PropertyGroup>
-    
     <ItemGroup>
         <PackageReference Include="GitVersion.MsBuild" Version="6.8.2">
             <PrivateAssets>all</PrivateAssets>
