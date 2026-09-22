@@ -4,6 +4,7 @@
         <Description>Stageplay core runtime library.</Description>
         <Title>Stageplay Core Runtime</Title>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup>

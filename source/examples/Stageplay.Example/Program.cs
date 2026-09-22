@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+﻿using Foster.Framework;
 using Radish;
 using Radish.Steamworks;
 
@@ -6,7 +6,7 @@ var gameInfo = new GameInfo("Audrey Castillo",
     "Stageplay Foster Example",
     "zone.audrey.foster-example",
     Version.Parse(GitVersionInformation.AssemblySemVer),
-    new Size(1920, 1080)
+    new Point2(640, 480) // Test assets from The Closet are this size
 );
 
 using var runtime = StageplayRuntime.CreateWithGame<ExampleGame>(args, gameInfo)

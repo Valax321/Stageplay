@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace Radish.Graphics;
 
 /// <summary>
-/// Provides object pooling for <see cref="Batcher"/> instances..
+/// Provides object pooling for <see cref="Batcher"/> instances.
 /// Batchers are automatically cleared when returned, so it does not need to be done manually.
 /// </summary>
 /// <param name="graphicsDevice">The graphics device to use when creating new batcher instances.</param>

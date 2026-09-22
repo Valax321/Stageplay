@@ -16,7 +16,7 @@ namespace Radish;
 [PublicAPI]
 public sealed class StageplayRuntime : App
 {
-    internal record StartupInfo(Func<StageplayRuntime, Game> GameFactory, GameInfo GameInfo, CommandLine CommandLine);
+    internal record StartupInfo(Func<StageplayRuntime, Game> GameFactory, GameInfo GameInfo, CommandLine CommandLine, LocalSettingsStore? LocalSettingsStore);
     internal record PlatformSystemImplementations(Func<StageplayRuntime, IPlatformAchievements>? AchievementsFactory);
 
     /// <summary>
@@ -29,7 +29,14 @@ public sealed class StageplayRuntime : App
     public static StageplayRuntimeBuilder CreateWithGame<TGame>(ReadOnlySpan<string> args, GameInfo gameInfo)
         where TGame : Game, new()
     {
-        return new StageplayRuntimeBuilder(new StartupInfo(rt => new TGame { Runtime = rt }, gameInfo, new CommandLine(args)));
+        return new StageplayRuntimeBuilder(
+            new StartupInfo(
+                rt => new TGame { Runtime = rt }, 
+                gameInfo, 
+                new CommandLine(args),
+                new LocalSettingsStore(gameInfo)
+            )
+        );
     }
     
     /// <summary>
@@ -66,6 +73,8 @@ public sealed class StageplayRuntime : App
     /// The platform's achievement provider, if one exists.
     /// </summary>
     public IPlatformAchievements? Achievements { get; }
+    
+    internal DebugMenu DebugMenu { get; }
 
     /// <summary>
     /// Invoked when the runtime is starting up.
@@ -83,7 +92,7 @@ public sealed class StageplayRuntime : App
     public event Action? OnShutdown;
 
     private Renderer _renderer;
-    private DebugMenu _debugMenu;
+    private LocalSettingsStore? _settingsStore;
     
     /// <summary>
     /// Creates a new app instance. Do not call this directly, it needs to be public for dependency injection to be able to create it.
@@ -102,8 +111,9 @@ public sealed class StageplayRuntime : App
         Content = new ContentManager(this);
         Lua = new LuaVM(this);
         
-        _debugMenu = new DebugMenu(this);
-        _renderer = new Renderer(GraphicsDevice, _debugMenu);
+        DebugMenu = new DebugMenu(this);
+        _renderer = new Renderer(this);
+        _settingsStore = info.LocalSettingsStore;
 
         if (platformImpl.AchievementsFactory is not null)
             Achievements = platformImpl.AchievementsFactory(this);
@@ -141,9 +151,20 @@ public sealed class StageplayRuntime : App
         Lua.Dispose();
         Content.Dispose();
         OnShutdown?.Invoke();
-
+        
         if (Current == this)
             Current = null;
+    }
+
+    private void SaveLocalResolutionSettings()
+    {
+        if (_settingsStore is not null)
+        {
+            _settingsStore.SetBool("Fullscreen", Window.Fullscreen);
+            _settingsStore.SetInt("ResolutionX", Window.Width);
+            _settingsStore.SetInt("ResolutionY", Window.Height);
+            _settingsStore.Save();
+        }
     }
 
     /// <inheritdoc/>
@@ -174,11 +195,21 @@ public sealed class StageplayRuntime : App
         var sz = startupInfo.GameInfo.DesignSize;
         var fullscreen = true;
 
+        if (startupInfo.LocalSettingsStore is not null)
+        {
+            if (!startupInfo.CommandLine.Contains("safemode"))
+                startupInfo.LocalSettingsStore.Load();
+
+            sz.X = startupInfo.LocalSettingsStore.GetInt("ResolutionX", sz.X);
+            sz.Y = startupInfo.LocalSettingsStore.GetInt("ResolutionY", sz.Y);
+            fullscreen = startupInfo.LocalSettingsStore.GetBool("Fullscreen", fullscreen);
+        }
+
         if (startupInfo.CommandLine.TryGetValue("w", out var w) && int.TryParse(w, out var ww))
-            sz.Width = ww;
+            sz.X = ww;
 
         if (startupInfo.CommandLine.TryGetValue("h", out var h) && int.TryParse(h, out var hh))
-            sz.Height = hh;
+            sz.Y = hh;
 
         if (startupInfo.CommandLine.Contains("window") || startupInfo.CommandLine.Contains("windowed"))
             fullscreen = false;
@@ -187,7 +218,7 @@ public sealed class StageplayRuntime : App
         if (startupInfo.CommandLine.Contains("gpuDebug"))
             flags |= AppFlags.GraphicsDebugging;
         
-        return new AppConfig(startupInfo.GameInfo.ApplicationName, startupInfo.GameInfo.ApplicationName, sz.Width, sz.Height, fullscreen, false,
+        return new AppConfig(startupInfo.GameInfo.ApplicationName, startupInfo.GameInfo.ApplicationName, sz.X, sz.Y, fullscreen, false,
             UpdateMode.UnlockedStep(), Flags: flags);
     }
 }

@@ -1,0 +1,161 @@
+$var1 100
+$var2 -20
+
+:begin
+	fadeto black 0
+	justify centre
+	pos 0 150
+	size 48
+	msg "THE CLOSET\nBy Audrey Castillo\nClick to begin"
+	waitkey
+	jump story
+
+:story
+	msg " "
+	fadeto transparent 5
+	justify left
+	pos 16 32
+	size 24
+	bg closet
+	playsound "event:/Music" 0
+	wait 5
+
+	msg "I'm sitting in my closet. Hiding from it."
+	waitkey
+	append "\nI know it's just out there. Waiting for me."
+	waitkey
+
+	msg "It all started three weeks ago when I let it in, on what was supposed to be just a regular day."
+	waitkey
+	append " Out doing my shopping, I never suspected..."
+	waitkey
+
+	playsound "event:/Knocking"
+	wait 1.5
+	msg "It's just out there! I must tell my story quickly so whoever finds me can know the truth."
+	waitkey
+
+	// Have a fade to a shopping background here
+
+	msg "Outside the store, the strange figures were handing out flyers. I wouldn't normally pay them a second thought, but one of them was unusually pushy."
+	waitkey
+	append "\n\n\"Hello! You look in need of a friend. Please take a moment to read through this. It may be your salvation.\""
+	waitkey
+	append "\n\nI offered a polite smile but declined."
+	waitkey
+	append " The woman's face instantly turned dark."
+	waitkey
+
+	msg "\"I know the look behind your eyes. You are lonely. We see it all the time. The world can be a harsh, empty place without companionship. Please... take a look.\""
+	waitkey
+	append "\n\nI hesitated. She wasn't wrong -- I had just moved to this town not long ago and hadn't made any friends yet. My life *was* quite lonely."
+	waitkey
+	append "\n\n\I accepted the flyer, not expecting much. I didn't even look at it until it tumbled out of the shopping bag I hastily shoved it into when I arrived home."
+	waitkey
+
+	// Inside home background (maybe picture of the flyer?)
+
+	msg "Round pets! Long pets! Noisy pets! Cuddly pets! All for $50!"
+	append "\n\nThe flyer was decorated with frankly amateurish drawings of... creatures. Dogs? Horses? It was hard to tell. They looked as if they were drawn by children who had never seen another living creature."
+	waitkey
+	append " The vagueness about what *animals* were available made it even stranger. This kind of thing would normally specify \"dogs or cats for adoption\", right?"
+	waitkey
+
+	msg "Even so, the thought of a pet was a comforting one. Before I moved I had enjoyed the company of my parents' dog named Cookie. I had also noticed that on my rental agreement that pets *were* allowed with prior approval."
+	waitkey
+	append " I let the idea sit with me for a few days, most of which were occupied by time at work, commuting to work or commuting *from* work. A few lonely days that ended with me crawling into bed, exhausted and alone, only to wake up the next morning and repeat the routine."
+	waitkey
+	append " Maybe a pet wasn't such a bad idea."
+	waitkey
+
+	// factories background
+
+	msg "So the next day I had free, I drove to the address the flyer had listed. It was somewhat outside of town, down a quiet road through the industrial area. Unassuming, even more so as the rain fell heavy and forced me to slow down in the poor visibility."
+	append " I should have stayed away."
+	waitkey
+
+	msg "As the car pulled up to the delapidated weatherboard shack, things seemed wrong. No one else parked in the carpark, not even staff."
+	waitkey
+	append " The lights off, yet the "open" sign glowing brightly in neon through the fog. But the loneliness ate away at me. Maybe they were closed and forgot to turn the sign off?"
+	waitkey
+	append " Stupidly, I persisted."
+	waitkey
+	playsound "event:/Knocking"
+
+	msg "After parking and locking up, I headed inside -- to my surprise -- as the door was unlocked. A tiny lobby stood before me, along with a strange smell I struggle to recall."
+	waitkey
+	append " Acrid, yet with a notable scent of artificial perfume. Odd."
+	waitkey
+	append " I approached the unattended counter and rang the bell, and quickly the same woman from the shops the other day emerged from the back with a broad smile."
+	waitkey
+
+	msg "\"You decided to give us a try?\" she asked."
+	waitkey
+	append "\nI nodded, but the smell was getting to me and I could feel a bad headache coming on already."
+	waitkey
+	append "\n\"Please wait over there\" she motioned to the seats, \"and I'll have someone take you in very soon. I hope you enjoy your new friend\"."
+	waitkey
+	append "\nAt those last few words, I could swear that smile got even wider."
+	waitkey
+
+	msg "At this point things get hazy."
+	waitkey
+	append " I couldn't have been waiting more than a few minutes, but the pain made it feel like hours as the headache rapidly set on my brain."
+	waitkey
+	append " There was a man whose name I don't recall"
+	waitkey
+	append " -- or maybe I never asked --"
+	waitkey
+	playsound "event:/Knocking"
+	append " who led me into the back of the building that was lit surprisingly well."
+	waitkey
+	append " But the pain that shot through my eyes made it unbearable."
+	waitkey
+	append " I think the man smiled too, but how could he with this choking smell?"
+	waitkey
+
+	msg "There were creatures, sure."
+	waitkey
+	playsound "event:/Knocking"
+	append " They howled and screamed and hollered incessantly, a nightmare house of strange furry shapes that didn't resemble anything I'd ever known as a pet."
+	waitkey
+	append " As we passed cages they writhed and chomped at the bars of their disconcertingly clean cages, and each guttural sound bit into the space behind my eyes like a hot iron brand striking flesh."
+	waitkey
+
+	bg wake
+	msg "(It is at this point that Audrey ran out of time, as she spent half the week playing Alan Wake 2 instead of making this game."
+	waitkey
+	append " Some weeks are just game-playing weeks, not game-making weeks, you know how it is."
+	waitkey
+	append " At least Alan Wake 2 is very good)."
+	waitkey
+
+	msg "Oh, and one final thing... I opened the closet..."
+	waitkey
+
+	msg " "
+	fadeto white 0.5
+	wait 0.5
+	bg tiger
+	fadeto transparent 0.2
+	wait 0.2
+
+	playsound "event:/TigerMeow"
+	msg "AHHHHHH"
+	waitkey
+
+	jump credits
+
+:credits
+	msg " "
+	stopsound 0
+	fadeto black 5
+	justify left
+	pos 16 32
+	size 24
+	wait 5
+
+	msg "Thanks for playing!\nMusic: \"Lab Practicum\" from Half-Life 2\nSound Powered By FMOD Studio\n\nClick to Restart..."
+	waitkey
+
+	jump begin

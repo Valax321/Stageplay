@@ -1,6 +1,7 @@
 using CommandLine;
 using Radish.ContentBuilder;
 using Radish.ContentBuilder.StandardAssetProcessors;
+using Radish.Scenario;
 
 namespace Radish;
 
@@ -14,6 +15,12 @@ public class StageplayExampleRecipe : ICookRecipe
         // The runtime expects all Lua scripts to be in the scripts/ folder, so only look there.
         queue.AddByGlobPattern("scripts/**/*.lua", 
             new LuaBytecodeProcessor());
+        
+        // Compile all scenarios in the root directory
+        queue.AddByGlobPattern("*.scenario", new ScenarioProcessor
+        {
+            CommandSources = [RuntimeBuiltinCommands.Table]
+        });
         
         // Images are allowed anywhere in the content path.
         // Handle some common formats.

@@ -20,6 +20,7 @@
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
         <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.12" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+        <PackageReference Include="System.IO.Hashing" Version="10.0.12" />
     </ItemGroup>
 
 </Project>

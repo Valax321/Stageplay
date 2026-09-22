@@ -1,4 +1,4 @@
-using System.Drawing;
+using Foster.Framework;
 using JetBrains.Annotations;
 
 namespace Radish;
@@ -16,4 +16,4 @@ namespace Radish;
 /// </param>
 /// <param name="ContentDirectory">The content directory used for loading assets. Must be a relative path.</param>
 [PublicAPI]
-public record GameInfo(string Organization, string ApplicationName, string ApplicationIdentifier, Version Version, Size DesignSize, string ContentDirectory = "Content");
+public record GameInfo(string Organization, string ApplicationName, string ApplicationIdentifier, Version Version, Point2 DesignSize, string ContentDirectory = "Content");

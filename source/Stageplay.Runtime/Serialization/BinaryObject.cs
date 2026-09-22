@@ -84,6 +84,8 @@ public static class BinaryObject
         WritePreamble<T>(stream);
         var pw = PipeWriter.Create(stream);
         MemoryPackSerializer.Serialize(pw, obj);
+        
+        pw.Complete();
     }
     
     private static void ReadPreamble<T>(Stream stream)

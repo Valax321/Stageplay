@@ -16,13 +16,15 @@ internal sealed class MenuContainer(string name)
 
     private MenuContainer? _childMenu;
 
+    private static readonly Color BackgroundColor = new(39, 50, 73, 255);
+
     public void Draw(in DebugMenu.DrawInfo draw)
     {
         var vpH = (48 + ((int)draw.ScaledTextLineHeight * Items.Count));
         var colMul = (_childMenu != null ? 0.5f : 1.0f);
         
         draw.Batch.PushBlend(BlendMode.NonPremultiplied);
-        draw.Batch.Rect(draw.Viewport with { Height = vpH }, Color.DarkSlateGray.ScaleV(colMul));
+        draw.Batch.Rect(draw.Viewport with { Height = vpH }, BackgroundColor.ScaleV(colMul));
         draw.Batch.RectLine(draw.Viewport with { Height = vpH }, 1.0f, Color.White.ScaleV(colMul));
         draw.Batch.RectLine((draw.Viewport with { Height = vpH }).Inflate(1), 2.0f, (Color.Black with { A = 68 }).ScaleV(colMul));
         draw.Batch.PopBlend();

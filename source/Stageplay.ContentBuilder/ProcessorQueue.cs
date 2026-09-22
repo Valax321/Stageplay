@@ -97,15 +97,20 @@ public sealed class ProcessorQueue(DirectoryInfo contentDir, DirectoryInfo destD
 
     private static void WriteResult(AssetProcessorInput input, AssetProcessorResult? output, Exception? error)
     {
+        if (System.Diagnostics.Debugger.IsAttached && error is not null)
+            System.Diagnostics.Debugger.BreakForUserUnhandledException(error);
+        
+        Console.Write($"{input.ContentFilePath}");
+        
         if (output != null)
         {
-            Console.Write($"{input.ContentFilePath} -> ");
+            Console.Write(" -> ");
             Console.Write(output.GeneratedFiles.Count > 1
                 ? $"[ {string.Join(", ", output.GeneratedFiles.Select(s => GetProperOutputPath(s, input)))} ]"
                 : GetProperOutputPath(output.GeneratedFiles[0], input));
         }
         
         Console.Write(" - ");
-        Console.WriteLine(error == null ? "SUCCESS" : $"FAILED ({error.Message})");
+        Console.WriteLine(error == null ? "SUCCESS" : $"FAILED : {error.Message}");
     }
 }
