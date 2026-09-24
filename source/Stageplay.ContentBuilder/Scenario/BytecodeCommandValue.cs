@@ -2,11 +2,17 @@ using JetBrains.Annotations;
 
 namespace Radish.ContentBuilder.Scenario;
 
+/// <summary>
+/// Base class for bytecode arguments.
+/// </summary>
 public abstract class BytecodeCommandValue
 {
     internal abstract byte[] ToBytes(BytecodeWriterState state);
 }
 
+/// <summary>
+/// String bytecode argument.
+/// </summary>
 [PublicAPI]
 public sealed class BytecodeString(string value) : BytecodeCommandValue
 {
@@ -17,6 +23,9 @@ public sealed class BytecodeString(string value) : BytecodeCommandValue
     }
 }
 
+/// <summary>
+/// Byte bytecode argument.
+/// </summary>
 [PublicAPI]
 public sealed class BytecodeByte(byte value) : BytecodeCommandValue
 {
@@ -26,6 +35,9 @@ public sealed class BytecodeByte(byte value) : BytecodeCommandValue
     }
 }
 
+/// <summary>
+/// Bytecode boolean argument.
+/// </summary>
 [PublicAPI]
 public sealed class BytecodeBoolean(bool value) : BytecodeCommandValue
 {
@@ -35,6 +47,9 @@ public sealed class BytecodeBoolean(bool value) : BytecodeCommandValue
     }
 }
 
+/// <summary>
+/// Bytecode short argument.
+/// </summary>
 public sealed class BytecodeShort(short value) : BytecodeCommandValue
 {
     internal override byte[] ToBytes(BytecodeWriterState state)
@@ -43,6 +58,9 @@ public sealed class BytecodeShort(short value) : BytecodeCommandValue
     }
 }
 
+/// <summary>
+/// Bytecode int argument.
+/// </summary>
 [PublicAPI]
 public sealed class BytecodeInteger(int value) : BytecodeCommandValue
 {
@@ -52,6 +70,9 @@ public sealed class BytecodeInteger(int value) : BytecodeCommandValue
     }
 }
 
+/// <summary>
+/// Bytecode float argument.
+/// </summary>
 [PublicAPI]
 public sealed class BytecodeFloat(float value) : BytecodeCommandValue
 {

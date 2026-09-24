@@ -85,6 +85,8 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
     private void DrawStats(in DrawInfo draw)
     {
         using var sb = ZString.CreateStringBuilder();
+        sb.AppendFormat("Frame: {0:F2}ms / {1:F2}fps", app.Time.Delta * 1000, 1 / app.Time.Delta);
+        sb.AppendLine();
         sb.AppendFormat("Mem: {0:F2}MB", Environment.WorkingSet / (1024.0 * 1024.0));
         sb.AppendLine();
         sb.AppendFormat("HeapMem: {0:F2}MB", GC.GetTotalMemory(false) / (1024.0 * 1024.0));

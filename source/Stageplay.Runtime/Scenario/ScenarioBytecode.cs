@@ -10,12 +10,8 @@ public sealed partial class ScenarioBytecode
     /// <summary>
     /// Map of label string indices to bytecode offsets of the next command.
     /// </summary>
+    [BrotliFormatter<ImmutableDictionary<int, int>>(CompressionLevel.SmallestSize)]
     public required ImmutableDictionary<int, int> LabelAddresses { get; init; }
-    
-    /// <summary>
-    /// Map of bytecode offsets to source code locations.
-    /// </summary>
-    public required ImmutableDictionary<int, DebuggerLocation> SourceMap { get; init; }
     
     /// <summary>
     /// The hash is used to detect if a save is loaded with a different scenario version.

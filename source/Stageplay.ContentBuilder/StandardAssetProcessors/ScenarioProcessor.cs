@@ -8,11 +8,19 @@ using Radish.Serialization;
 
 namespace Radish.ContentBuilder.StandardAssetProcessors;
 
+/// <summary>
+/// Asset processor that converts .scenario source files into scenario binaries.
+/// It will also generate a source map file.
+/// </summary>
 [PublicAPI]
 public sealed class ScenarioProcessor : AssetProcessor
 {
+    /// <summary>
+    /// A list of sources for runtime commands, used to validate the script instructions at compile-time.
+    /// </summary>
     public required IReadOnlyList<IReadOnlyDictionary<string, ICommand>> CommandSources { get; init; }
     
+    /// <inheritdoc/>
     public override async Task<AssetProcessorResult> ProcessContentFile(AssetProcessorInput input)
     {
         var commands = new Dictionary<string, ICommand>(StringComparer.InvariantCultureIgnoreCase);
@@ -39,21 +47,36 @@ public sealed class ScenarioProcessor : AssetProcessor
         }
         
         var entrypointStringIndex = stringTable.GetUniqueStringIndex(result.Entrypoint);
-
+        var runtimeGlobals = globals.BuildRuntimeGlobals();
+        var (runtimeBytecode, runtimeSourceMap) = writer.Compile();
+        
+        // This must be called last!
+        var runtimeStringTable = stringTable.BuildRuntimeStringTable();
+        
         var compiledScript = new CompiledScenario
         {
-            Globals = globals.BuildRuntimeGlobals(),
-            StringTable = stringTable.BuildRuntimeStringTable(),
+            Globals = runtimeGlobals,
+            StringTable = runtimeStringTable,
             StartLabel = entrypointStringIndex,
-            Bytecode = writer.Compile()
+            Bytecode = runtimeBytecode
         };
 
-        var dest = MakeOutputFileFromInput(input, ".scnr");
-        await using var destFile = dest.OpenWrite();
-        destFile.SetLength(0);
+        var destScenario = MakeOutputFileFromInput(input, ".bscn");
+        var destSourceMap = MakeOutputFileFromInput(input, ".lno");
+        
+        {
+            await using var destScenarioFile = destScenario.OpenWrite();
+            destScenarioFile.SetLength(0);
+            await BinaryObject.ToStreamAsync(compiledScript, destScenarioFile);
+        }
 
-        await BinaryObject.ToStreamAsync(compiledScript, destFile);
-        return new AssetProcessorResult([dest.FullName]);
+        {
+            await using var destSourceMapFile = destSourceMap.OpenWrite();
+            destSourceMapFile.SetLength(0);
+            await BinaryObject.ToStreamAsync(runtimeSourceMap, destSourceMapFile);
+        }
+        
+        return new AssetProcessorResult([destScenario.FullName, destSourceMap.FullName]);
     }
 
     private static async Task<(string Entrypoint, List<FileInfo> Scripts)> ParseScenarioDirectives(AssetProcessorInput input, DirectoryInfo scenarioDirectory)
@@ -73,7 +96,7 @@ public sealed class ScenarioProcessor : AssetProcessor
             
             // Skip comments
             var trimmedLine = line.TrimStart();
-            if (trimmedLine.StartsWith('#'))
+            if (trimmedLine.StartsWith("//"))
                 continue;
 
             var tokens = trimmedLine.TokenizeWithStringHandling();
@@ -92,7 +115,7 @@ public sealed class ScenarioProcessor : AssetProcessor
                     break;
                 default:
                     throw new ScenarioParseException("D0002", input.ContentFilePath, lineIndex,
-                        "unknown scenario directive");
+                        $"unknown scenario directive \"{directive}\"");
             }
         }
 
@@ -138,7 +161,7 @@ public sealed class ScenarioProcessor : AssetProcessor
 
                 // Skip comments
                 var trimmedLine = line.TrimStart();
-                if (trimmedLine.StartsWith('#'))
+                if (trimmedLine.StartsWith("//"))
                     continue;
 
                 var tokens = trimmedLine.TokenizeWithStringHandling();

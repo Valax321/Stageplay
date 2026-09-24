@@ -100,7 +100,7 @@ public sealed class ProcessorQueue(DirectoryInfo contentDir, DirectoryInfo destD
         if (System.Diagnostics.Debugger.IsAttached && error is not null)
             System.Diagnostics.Debugger.BreakForUserUnhandledException(error);
         
-        Console.Write($"{input.ContentFilePath}");
+        Console.Write($"{input.ContentFilePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)}");
         
         if (output != null)
         {

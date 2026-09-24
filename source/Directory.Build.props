@@ -2,8 +2,8 @@
     <PropertyGroup>
         <Product>Stageplay</Product>
         <Authors>Audrey Castillo</Authors>
-        <Company>audrey.zone</Company>
-        <Copyright>Copyright (c) 2026 Audrey Castillo.</Copyright>
+        <Company>Audrey Castillo</Company>
+        <Copyright>Copyright (c) 2026 Audrey Castillo</Copyright>
         <RootNamespace>Radish</RootNamespace>
         <PackageProjectUrl>https://github.com/Valax321/Stageplay</PackageProjectUrl>
         <PackageLicenseExpression>Zlib</PackageLicenseExpression>

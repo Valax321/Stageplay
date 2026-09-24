@@ -362,6 +362,11 @@ public sealed class FsArcFile
             AddDirectoryRecursive(data, root, rootEntry);
         }
 
+        foreach (var file in dir.EnumerateFiles())
+        {
+            AddFile(data, file, rootEntry);
+        }
+
         data.DestFile.PadBytes(4096);
         var tocPos = data.DestFile.Position;
         
@@ -386,14 +391,7 @@ public sealed class FsArcFile
             
             if (e is FileInfo file)
             {
-                // Pad the file if bigger than a patch delta block size.
-                // We don't pad smaller files so that we can pack multiple small files within one block
-                if (file.Length > 4096)
-                    data.DestFile.PadBytes(4096);
-                
-                data.NewFileEntry(file, myEntry);
-                using var fs = file.OpenRead();
-                fs.CopyTo(data.DestFile);
+                AddFile(data, file, myEntry);
             }
             else if (e is DirectoryInfo dir)
             {
@@ -401,7 +399,19 @@ public sealed class FsArcFile
             }
         }
     }
-    
+
+    private static void AddFile(BuildData data, FileInfo file, Entry myEntry)
+    {
+        // Pad the file if bigger than a patch delta block size.
+        // We don't pad smaller files so that we can pack multiple small files within one block
+        if (file.Length > 4096)
+            data.DestFile.PadBytes(4096);
+                
+        data.NewFileEntry(file, myEntry);
+        using var fs = file.OpenRead();
+        fs.CopyTo(data.DestFile);
+    }
+
     #endregion
 
     #region StorageContainer interface

@@ -10,7 +10,7 @@ var gameInfo = new GameInfo("Audrey Castillo",
 );
 
 using var runtime = StageplayRuntime.CreateWithGame<ExampleGame>(args, gameInfo)
-    .WithSteamworks(480)
+    .WithSteamworks(480, errorIfSteamInitFailed: true)
     .Build();
     
 runtime.Run();

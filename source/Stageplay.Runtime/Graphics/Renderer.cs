@@ -71,10 +71,22 @@ internal sealed class Renderer : IDisposable
     {
         var batcher = _batcherPool.Get();
 
-        // Scales the debug menu according to DPI scale
-        batcher.PushMatrix(Vector2.Zero, Vector2.One * dest.ContentScale.Y, 0);
+        var windowSz = dest.SizeInPixels;
+        var designSizeAspect = (float)_app.GameInfo.DesignSize.X / _app.GameInfo.DesignSize.Y;
+        var drawSize = new Point2((int)(windowSz.Y * designSizeAspect), windowSz.Y);
+        var uiDrawPos = new Vector2(
+            (int)((windowSz.X - drawSize.X) / 2.0),
+            (int)((windowSz.Y - drawSize.Y) / 2.0)
+        ) / dest.ContentScale.Y;
+        
+        // Clamp the UI area to the design size area
+        var uiSz = (dest.SizeInPixels / dest.ContentScale.Y).FloorToPoint2();
+        uiSz.X = (int)(uiSz.Y * designSizeAspect);
 
-        _app.DebugMenu.Draw(batcher, new RectInt(Point2.Zero, dest.Size));
+        // Scales the debug menu according to DPI scale
+        batcher.PushMatrix(uiDrawPos * dest.ContentScale.Y, Vector2.One *  dest.ContentScale.Y, 0);
+
+        _app.DebugMenu.Draw(batcher, new RectInt(Point2.Zero, uiSz));
         
         batcher.Render(dest);
         _batcherPool.Return(batcher);

@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using SDL3;
 using Steamworks;
 
 namespace Radish.Steamworks;
@@ -17,8 +18,9 @@ public static class RuntimeBuilderExtensions
         /// <remarks>If the Steam API fails to initialise the game will still run, but all API calls will return error values.</remarks>
         /// <param name="appId">The steam app ID to run with.</param>
         /// <param name="callRestartAppIfNecessary">If true, the runtime will call <see cref="SteamClient.RestartAppIfNecessary"/> at startup and terminate if steam requests a restart.</param>
+        /// <param name="errorIfSteamInitFailed">If true, then a failure to initialise the steam API will show an error dialog and then quit the application.</param>
         /// <returns>The input builder instance.</returns>
-        public StageplayRuntimeBuilder WithSteamworks(uint appId, bool callRestartAppIfNecessary = true)
+        public StageplayRuntimeBuilder WithSteamworks(uint appId, bool callRestartAppIfNecessary = true, bool errorIfSteamInitFailed = false)
         {
             if (callRestartAppIfNecessary && SteamClient.RestartAppIfNecessary(appId))
                 Environment.Exit(0);
@@ -27,8 +29,15 @@ public static class RuntimeBuilderExtensions
             {
                 SteamClient.Init(appId, asyncCallbacks: false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                if (errorIfSteamInitFailed)
+                {
+                    SDL.SDL_ShowSimpleMessageBox(SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_ERROR,
+                        "Steam Initialization Failed", ex.Message, 0);
+                    Environment.Exit(1);
+                }
+                
                 return builder;
             }
             

@@ -1,4 +1,4 @@
-# This file defines the actual scripts to be included in the scenario and the starting label.
+// This file defines the actual scripts to be included in the scenario and the starting label.
 
 entrypoint begin
 include scenario/test01.scr

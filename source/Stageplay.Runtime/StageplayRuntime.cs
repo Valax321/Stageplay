@@ -105,6 +105,8 @@ public sealed class StageplayRuntime : App
         Log.Info($"Framework: {RuntimeInformation.FrameworkDescription}");
         Log.Info($"Platform: {RuntimeInformation.OSDescription} {RuntimeInformation.ProcessArchitecture}");
 
+        GraphicsDevice.VSync = true;
+        
         CommandLineArguments = info.CommandLine;
         GameInfo = info.GameInfo;
         Game = info.GameFactory(this);

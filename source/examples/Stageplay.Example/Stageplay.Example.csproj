@@ -2,23 +2,26 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <AssemblyName>FosterExample</AssemblyName>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <AssemblyName>StageplayExample</AssemblyName>
+        <AssemblyTitle>Stageplay Example Game</AssemblyTitle>
+        <ApplicationIcon>app.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\Stageplay.Platform.Steamworks\Stageplay.Platform.Steamworks.csproj" />
         <ProjectReference Include="..\..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
     </ItemGroup>
-    
-    <ItemGroup>
-        <!-- 
-            This needs to be manually added to the game project, 
-            since the stageplay steamworks library intentionally makes the dependency private
-            so that it can transparently use either the Win64 or Posix build at runtime.
-        -->
+
+    <!-- 
+        This needs to be manually added to the game project, 
+        since the stageplay steamworks library intentionally makes the dependency private
+        so that it can transparently use either the Win64 or Posix build at runtime.
+    -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <ProjectReference Include="..\..\thirdparty\Facepunch.Steamworks\Facepunch.Steamworks\Facepunch.Steamworks.Win64.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
         <ProjectReference Include="..\..\thirdparty\Facepunch.Steamworks\Facepunch.Steamworks\Facepunch.Steamworks.Posix.csproj" />
     </ItemGroup>
 
