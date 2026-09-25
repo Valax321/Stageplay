@@ -1,5 +1,5 @@
 :begin
-    dprint "Game init script called"
+    dprint "Begin game init scenario"
     bg tiger_spooky
     pushmenu main_menu
     end
