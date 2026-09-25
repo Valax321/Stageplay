@@ -12,6 +12,35 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <None Remove="Libraries\**\*" />
+
+        <None Include="Libraries\win-x64\*.dll">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/win-x64/native</PackagePath>
+        </None>
+        <None Include="Libraries\win-x86\*.dll">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/win-x86/native</PackagePath>
+        </None>
+        <None Include="Libraries\win-arm64\*.dll">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/win-arm64/native</PackagePath>
+        </None>
+        <None Include="Libraries\osx\*.dylib">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/osx/native</PackagePath>
+        </None>
+        <None Include="Libraries\linux-x64\*.so">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/linux-x64/native</PackagePath>
+        </None>
+        <None Include="Libraries\linux-arm64\*.so">
+            <Pack>true</Pack>
+            <PackagePath>runtimes/linux-arm64/native</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
         <PackageReference Include="LuaCSharp" Version="0.5.6" />
         <PackageReference Include="MemoryPack" Version="1.21.4" />
