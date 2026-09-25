@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using Lua;
 using MemoryPack;
 using Radish.Content;
@@ -18,6 +19,7 @@ public sealed partial class LuaBytecodeModule : ILuaModule, IBinarySerializable
     /// <summary>
     /// The lua bytecode blob.
     /// </summary>
+    [BrotliFormatter(CompressionLevel.SmallestSize)]
     public required byte[] Bytecode { get; init; }
     
     /// <summary>
