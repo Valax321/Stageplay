@@ -1,0 +1,5 @@
+// The init scenario is loaded on runtime startup.
+// Generally you don't want to do much here, maybe show some logos and then load a Lua menu for your actual main menu.
+
+entrypoint :begin
+include scenario/init.scr

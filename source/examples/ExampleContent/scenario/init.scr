@@ -1,0 +1,5 @@
+:begin
+    dprint "Game init script called"
+    bg tiger_spooky
+    pushmenu main_menu
+    end

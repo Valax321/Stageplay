@@ -7,7 +7,7 @@ namespace Radish.ContentBuilder.Scenario;
 /// Build-time scenario globals table.
 /// </summary>
 /// <param name="stringTable">The string table to get string indices from.</param>
-public class WritableGlobals(WritableStringTable stringTable)
+internal class WritableGlobals(WritableStringTable stringTable)
 {
     private readonly Dictionary<int, int> _lookup = [];
 

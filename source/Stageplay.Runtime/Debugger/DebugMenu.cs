@@ -177,12 +177,9 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
 
     private void PushScenarioMenu(MenuContainer parent)
     {
-        parent.PushSubMenu(new MenuContainer("Scenario")
-        {
-            Items =
-            {
-                new MenuContainer.MenuItem("TODO", null)
-            }
-        });
+        if (app.ActiveScenario is null)
+            return;
+        
+        parent.PushSubMenu(app.ActiveScenario.PushDebugMenu());
     }
 }

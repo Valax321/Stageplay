@@ -37,6 +37,7 @@ internal static class StringParseExtensions
                 if (chr == '"')
                 {
                     inQuotes = !inQuotes;
+                    continue;
                 }
             
                 if (inQuotes && chr == '\\') {

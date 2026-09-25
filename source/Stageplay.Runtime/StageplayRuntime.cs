@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Foster.Framework;
 using JetBrains.Annotations;
 using Radish.Content;
@@ -7,6 +9,10 @@ using Radish.Graphics;
 using Radish.IO;
 using Radish.Lua;
 using Radish.Platform;
+using Radish.Resources;
+using Radish.Scenario;
+using Radish.Scenario.Commands;
+using SDL3;
 
 namespace Radish;
 
@@ -73,7 +79,9 @@ public sealed class StageplayRuntime : App
     /// The platform's achievement provider, if one exists.
     /// </summary>
     public IPlatformAchievements? Achievements { get; }
-    
+
+    public ScenarioVM? ActiveScenario { get; private set; }
+
     internal DebugMenu DebugMenu { get; }
 
     /// <summary>
@@ -93,7 +101,7 @@ public sealed class StageplayRuntime : App
 
     private Renderer _renderer;
     private LocalSettingsStore? _settingsStore;
-    
+
     /// <summary>
     /// Creates a new app instance. Do not call this directly, it needs to be public for dependency injection to be able to create it.
     /// </summary>
@@ -124,6 +132,32 @@ public sealed class StageplayRuntime : App
             cb(this);
     }
 
+    /// <summary>
+    /// Runs the application.
+    /// </summary>
+    [DebuggerDisableUserUnhandledExceptions]
+    public new void Run()
+    {
+        try
+        {
+            base.Run();
+        }
+        catch (Exception ex)
+        {
+            if (System.Diagnostics.Debugger.IsAttached)
+                System.Diagnostics.Debugger.BreakForUserUnhandledException(ex);
+            
+            // I've submitted a PR for adding a messagebox API to Foster.
+            // Until that's done, just do it directly with the SDL api.
+            // The benefit of the Foster implementation is being able to set the messagebox window
+            // properly, so the popup will be forced on top of the game window.
+
+            SDL.SDL_ShowSimpleMessageBox(SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_ERROR, "Fatal Error",
+                $"The game encountered an unrecoverable error and will now close.\n{ex.Message}", 0);
+            Environment.ExitCode = 1;
+        }
+    }
+
     /// <inheritdoc/>
     protected override void Startup()
     {
@@ -138,8 +172,26 @@ public sealed class StageplayRuntime : App
         
         Game.MountContent(Content);
         Lua.LoadMainModule();
-        
         Game.PostStartup();
+        LoadInitScenario();
+    }
+
+    private void LoadInitScenario()
+    {
+        if (!LoadScenarioByName("init"))
+        {
+            Log.Error("Init scenario is missing. All Stageplay games must have at least a scenario named \"init.scenario\".");
+        }
+    }
+
+    private bool LoadScenarioByName(string name)
+    {
+        if (!Content.Exists<CompiledScenario>(name))
+            return false;
+        
+        var scenarioScript = Content.Load<CompiledScenario>(name);
+        ActiveScenario = new ScenarioVM(this, name, scenarioScript, RuntimeBuiltinCommands.Table);
+        return true;
     }
 
     /// <inheritdoc/>
@@ -177,6 +229,7 @@ public sealed class StageplayRuntime : App
             return;
         
         OnPreUpdate?.Invoke();
+        ActiveScenario?.Update();
     }
 
     /// <inheritdoc/>

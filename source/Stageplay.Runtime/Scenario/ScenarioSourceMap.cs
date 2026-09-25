@@ -15,6 +15,6 @@ public sealed partial class ScenarioSourceMap : IBinarySerializable
     /// <summary>
     /// Map of bytecode offsets to source code locations.
     /// </summary>
-    [BrotliFormatter<ImmutableDictionary<int, DebuggerLocation>>(CompressionLevel.SmallestSize)]
-    public required ImmutableDictionary<int, DebuggerLocation> SourceMap { get; init; }
+    [BrotliFormatter<ImmutableDictionary<int, SourceLocation>>(CompressionLevel.SmallestSize)]
+    public required ImmutableDictionary<int, SourceLocation> SourceMap { get; init; }
 }

@@ -1,12 +1,21 @@
+using System.Buffers;
+using Cysharp.Text;
 using Foster.Framework;
+using Radish.Utility;
 
-namespace Radish.Scenario;
+namespace Radish.Scenario.Commands;
 
+/// <summary>
+/// Table of builtin scenario commands.
+/// </summary>
 public static class RuntimeBuiltinCommands
 {
-    public static IReadOnlyDictionary<string, ICommand> Table = new Dictionary<string, ICommand>
+    /// <summary>
+    /// Default command table.
+    /// </summary>
+    public static IReadOnlyDictionary<string, ICommand> Table { get; } = new Dictionary<string, ICommand>
     {
-        {"debugprint", new DebugPrint()},
+        {"dprint", new DebugPrint()},
         {"msg", new ShowMessage(false)},
         {"append", new ShowMessage(true)},
         {"end", new EndScenario()},
@@ -16,17 +25,19 @@ public static class RuntimeBuiltinCommands
         {"justify", new TextJustify()},
         {"pos", new TextPosition()},
         {"size", new TextSize()},
-        {"jump", new JumpToLabel()},
+        {"goto", new GoToLabel()},
+        {"jump", new GoToLabel()},
         {"bg", new SetBackground()},
         {"playsound", new PlaySoundEffect()},
-        {"stopsound", new StopSoundEffect()}
+        {"stopsound", new StopSoundEffect()},
+        {"pushmenu", new PushMenu()},
     };
 
     private sealed class ShowMessage(bool append) : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -37,9 +48,9 @@ public static class RuntimeBuiltinCommands
 
     private sealed class FadeTo : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -66,9 +77,10 @@ public static class RuntimeBuiltinCommands
 
     private sealed class SetBackground : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            var bgName = ctx.Reader.ReadString();
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -81,9 +93,9 @@ public static class RuntimeBuiltinCommands
 
     private sealed class TextJustify : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -95,9 +107,9 @@ public static class RuntimeBuiltinCommands
 
     private sealed class TextPosition : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -111,9 +123,9 @@ public static class RuntimeBuiltinCommands
 
     private sealed class TextSize : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -125,9 +137,9 @@ public static class RuntimeBuiltinCommands
 
     private sealed class PlaySoundEffect : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -145,9 +157,9 @@ public static class RuntimeBuiltinCommands
     
     private sealed class StopSoundEffect : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -164,22 +176,21 @@ public static class RuntimeBuiltinCommands
     {
         private readonly record struct Params(double FinishTime, bool AllowSkip);
         
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
             var p = new Params(ctx.Vm.CurrentTime + ctx.Reader.ReadFloat(), ctx.Reader.ReadBoolean());
-            ctx.ContinueWith(p, Frame);
+            return ctx.ContinueWith(p, Frame);
         }
 
-        private static void Frame(CommandContinuationContext<Params> ctx)
+        private static CommandReturn Frame(CommandContinuationContext<Params> ctx)
         {
             if (ctx.Vm.FastForward)
-            {
-                ctx.Complete();
-                return;
-            }
+                return ctx.Complete();
             
             if (ctx.Params.FinishTime >= ctx.Vm.CurrentTime)
-                ctx.Complete();
+                return ctx.Complete();
+
+            return CommandReturn.Continue;
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -195,9 +206,17 @@ public static class RuntimeBuiltinCommands
 
     private sealed class WaitForKeypress : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            
+            return ctx.ContinueWith(new Unit(), Frame);
+        }
+
+        private static CommandReturn Frame(CommandContinuationContext<Unit> ctx)
+        {
+            if (ctx.Vm.FastForward)
+                return ctx.Complete();
+
+            return CommandReturn.Continue;
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -208,23 +227,48 @@ public static class RuntimeBuiltinCommands
 
     private sealed class DebugPrint : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
-            Log.Info(ctx.Reader.ReadString());
-            ctx.Complete();
+            var items = ArrayPool<string>.Shared.Rent(ctx.ArgumentCount);
+            
+            for (var i = 0; i < ctx.ArgumentCount; ++i)
+                items[i] = ctx.Reader.ReadString();
+            
+            using var sb = ZString.CreateStringBuilder();
+            sb.AppendJoin(' ', items);
+            
+            ArrayPool<string>.Shared.Return(items);
+            
+            Log.Info(sb.AsSpan());
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
         {
-            return new CommandData(ctx.Tokens.Command, ctx.Tokens.AsString(0));
+            var tokens = new List<object>();
+            for (var i = 0; i < ctx.Tokens.Count; ++i)
+            {
+                tokens.Add(ctx.Tokens.AsString(i));
+            }
+            
+            return new CommandData(ctx.Tokens.Command, tokens);
         }
     }
 
-    private sealed class JumpToLabel : ICommand
+    private sealed class GoToLabel : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
+            var labelString = ctx.Reader.ReadString();
+            var address = ctx.Vm.Script.FindLabelAddressByName(labelString);
+            if (address is null)
+            {
+                Log.Error($"Failed to get address for label \"{labelString}\"");
+                return ctx.Halt();
+            }
             
+            ctx.Vm.SetInstructionPointer(address.Value);
+            return ctx.Complete();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
@@ -236,14 +280,31 @@ public static class RuntimeBuiltinCommands
     
     private sealed class EndScenario : ICommand
     {
-        public void BeginExecute(in CommandExecutionContext ctx)
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
         {
             ctx.Vm.EndScenario();
+            return ctx.Halt();
         }
 
         public CommandData? Parse(in CommandParseContext ctx)
         {
             return new CommandData(ctx.Tokens.Command);
+        }
+    }
+
+    private sealed class PushMenu : ICommand
+    {
+        public CommandReturn BeginExecute(in CommandExecutionContext ctx)
+        {
+            var menuScriptName = ctx.Reader.ReadString();
+            Log.Info($"PushMenu script {menuScriptName}");
+            return ctx.Complete();
+        }
+
+        public CommandData? Parse(in CommandParseContext ctx)
+        {
+            var menuName = ctx.Tokens.AsString(0);
+            return new CommandData(ctx.Tokens.Command, menuName);
         }
     }
 }

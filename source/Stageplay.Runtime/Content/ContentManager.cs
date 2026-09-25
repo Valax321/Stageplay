@@ -34,6 +34,7 @@ public sealed class ContentManager : IDisposable
     {
         RegisterLoader<Texture, TextureLoader>();
         RegisterLoader<LuaBytecodeModule, LuaBytecodeModule.Loader>();
+        RegisterLoader<CompiledScenario, CompiledScenario.Loader>();
     }
 
     internal ContentManager(StageplayRuntime app)

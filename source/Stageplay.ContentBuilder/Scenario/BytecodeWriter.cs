@@ -8,7 +8,7 @@ internal record BytecodeWriterState(
     BytecodeWriter Context,
     Stream Output,
     IDictionary<int, int> LabelOffsetTable,
-    IDictionary<int, DebuggerLocation> SourceMap
+    IDictionary<int, SourceLocation> SourceMap
 );
 
 internal interface IBytecodeRecord
@@ -34,10 +34,14 @@ internal record CommandPacket(
     public void WriteBytes(BytecodeWriterState state)
     {
         var debugInfoFileStringIndex = state.Context.StringTable.GetUniqueStringIndex(DebugInfo.File);
-        state.SourceMap.Add((int)state.Output.Position, new DebuggerLocation(debugInfoFileStringIndex, DebugInfo.Line));
+        state.SourceMap.Add((int)state.Output.Position, new SourceLocation(debugInfoFileStringIndex, DebugInfo.Line));
 
         var commandNameStringIndex = state.Context.StringTable.GetUniqueStringIndex(CommandName);
+        var argCount = (byte)Arguments.Count;
+        
         state.Output.Write(BitConverter.GetBytes(commandNameStringIndex));
+        state.Output.Write(new ReadOnlySpan<byte>(ref argCount));
+        
         foreach (var arg in Arguments)
             state.Output.Write(arg.ToBytes(state));
     }
@@ -64,7 +68,7 @@ internal sealed class BytecodeWriter
         _records.Add(new Label(labelName));
     }
 
-    public (ScenarioBytecode, ScenarioSourceMap) Compile()
+    public ScenarioBytecode Compile(int entrypointIndex)
     {
         using var bc = new MemoryStream();
 
@@ -75,7 +79,7 @@ internal sealed class BytecodeWriter
         var labelOffsets = new Dictionary<int, int>();
 
         // Maps address => (file string index, line)
-        var sourceMap = new Dictionary<int, DebuggerLocation>();
+        var sourceMap = new Dictionary<int, SourceLocation>();
 
         foreach (var (i, label) in _records.OfType<Label>().Index())
         {
@@ -95,15 +99,15 @@ internal sealed class BytecodeWriter
         var rbc = new ScenarioBytecode
         {
             LabelAddresses = labelIndices.ToImmutableDictionary(),
-            Bytecode = bytecodeArray,
-            BytecodeHash = hash
+            Data = bytecodeArray,
+            BytecodeHash = hash,
+            StartLabelIndex = entrypointIndex,
+            SourceMap = new ScenarioSourceMap
+            {
+                SourceMap = sourceMap.ToImmutableDictionary()
+            }
         };
 
-        var rsm = new ScenarioSourceMap
-        {
-            SourceMap = sourceMap.ToImmutableDictionary()
-        };
-
-        return (rbc, rsm);
+        return rbc;
     }
 }

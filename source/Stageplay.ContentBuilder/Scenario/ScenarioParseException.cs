@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Radish.ContentBuilder.StandardAssetProcessors;
+namespace Radish.ContentBuilder.Scenario;
 
 /// <summary>
 /// Exception thrown for a scenario compiler error.
@@ -19,11 +19,11 @@ public sealed class ScenarioParseException(string errorCode, string file, int? l
             var sb = new StringBuilder();
             sb.Append(file);
             if (line.HasValue)
-                sb.Append($":{line}");
+                sb.Append($"({line})");
 
-            sb.Append(" - ");
+            sb.Append(" : error ");
             sb.Append(errorCode);
-            sb.Append(" - ");
+            sb.Append(" : ");
             sb.Append(message);
 
             return sb.ToString();

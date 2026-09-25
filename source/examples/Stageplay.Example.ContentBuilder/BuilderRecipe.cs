@@ -2,6 +2,7 @@ using CommandLine;
 using Radish.ContentBuilder;
 using Radish.ContentBuilder.StandardAssetProcessors;
 using Radish.Scenario;
+using Radish.Scenario.Commands;
 
 namespace Radish;
 

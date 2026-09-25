@@ -4,6 +4,7 @@ using Radish.ContentBuilder.AssetProcessors;
 using Radish.ContentBuilder.Scenario;
 using Radish.Resources;
 using Radish.Scenario;
+using Radish.Scenario.Commands;
 using Radish.Serialization;
 
 namespace Radish.ContentBuilder.StandardAssetProcessors;
@@ -48,18 +49,13 @@ public sealed class ScenarioProcessor : AssetProcessor
         
         var entrypointStringIndex = stringTable.GetUniqueStringIndex(result.Entrypoint);
         var runtimeGlobals = globals.BuildRuntimeGlobals();
-        var (runtimeBytecode, runtimeSourceMap) = writer.Compile();
+        var runtimeBytecode = writer.Compile(entrypointStringIndex);
         
         // This must be called last!
         var runtimeStringTable = stringTable.BuildRuntimeStringTable();
-        
-        var compiledScript = new CompiledScenario
-        {
-            Globals = runtimeGlobals,
-            StringTable = runtimeStringTable,
-            StartLabel = entrypointStringIndex,
-            Bytecode = runtimeBytecode
-        };
+
+        var compiledScript =
+            new CompiledScenario(runtimeGlobals, runtimeBytecode, runtimeStringTable);
 
         var destScenario = MakeOutputFileFromInput(input, ".bscn");
         var destSourceMap = MakeOutputFileFromInput(input, ".lno");
@@ -69,14 +65,8 @@ public sealed class ScenarioProcessor : AssetProcessor
             destScenarioFile.SetLength(0);
             await BinaryObject.ToStreamAsync(compiledScript, destScenarioFile);
         }
-
-        {
-            await using var destSourceMapFile = destSourceMap.OpenWrite();
-            destSourceMapFile.SetLength(0);
-            await BinaryObject.ToStreamAsync(runtimeSourceMap, destSourceMapFile);
-        }
         
-        return new AssetProcessorResult([destScenario.FullName, destSourceMap.FullName]);
+        return new AssetProcessorResult([destScenario.FullName]);
     }
 
     private static async Task<(string Entrypoint, List<FileInfo> Scripts)> ParseScenarioDirectives(AssetProcessorInput input, DirectoryInfo scenarioDirectory)
@@ -114,13 +104,13 @@ public sealed class ScenarioProcessor : AssetProcessor
                     scriptFiles.Add(new FileInfo(Path.Combine(scenarioDirectory.FullName, tokens[1])));
                     break;
                 default:
-                    throw new ScenarioParseException("D0002", input.ContentFilePath, lineIndex,
+                    throw new ScenarioParseException("DIR0002", input.ContentFilePath, lineIndex,
                         $"unknown scenario directive \"{directive}\"");
             }
         }
 
         if (entrypointLabel is null)
-            throw new ScenarioParseException("D0003", input.ContentFilePath, null,
+            throw new ScenarioParseException("DIR0003", input.ContentFilePath, null,
                 "an entrypoint directive must be provided");
 
         return (Entrypoint: entrypointLabel, Scripts: scriptFiles);
@@ -129,13 +119,14 @@ public sealed class ScenarioProcessor : AssetProcessor
     private static void ValidateDirectiveTokenCount(IReadOnlyList<string> tokens, int requiredCount, string file, int line)
     {
         if (tokens.Count < requiredCount)
-            throw new ScenarioParseException("D0001", file, line, "too few arguments in scenario directive");
+            throw new ScenarioParseException("DIR0001", file, line, "too few arguments in scenario directive");
     }
     
     private static async Task ParseScriptFile(FileInfo file, DirectoryInfo scenarioDirectory, BytecodeWriter writer, 
         IReadOnlyDictionary<string, ICommand> commands, WritableGlobals globals)
     {
-        var scriptPath = Path.GetRelativePath(scenarioDirectory.FullName, file.FullName);
+        var scriptPath = Path.GetRelativePath(scenarioDirectory.FullName, file.FullName)
+            .Replace('\\', '/'); // Without this the source map paths will differ between building on windows vs unix
         
         // Exceptions + IDisposable sucks.
         StreamReader? reader;
@@ -145,7 +136,7 @@ public sealed class ScenarioProcessor : AssetProcessor
         }
         catch (Exception)
         {
-            throw new ScenarioParseException("S9999", scriptPath, null, "could not open file for reading");
+            throw new ScenarioParseException("SCR9999", scriptPath, null, "could not open file for reading");
         }
         
         try
@@ -153,58 +144,76 @@ public sealed class ScenarioProcessor : AssetProcessor
             var lineIndex = 0;
             while (await reader.ReadLineAsync() is { } line)
             {
-                lineIndex++;
-
-                // Skip empty lines
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-
-                // Skip comments
-                var trimmedLine = line.TrimStart();
-                if (trimmedLine.StartsWith("//"))
-                    continue;
-
-                var tokens = trimmedLine.TokenizeWithStringHandling();
-                Debug.Assert(tokens.Count > 0);
-
-                if (tokens[0].StartsWith('$'))
-                {
-                    var globalName = tokens[0][1..];
-                    if (!int.TryParse(tokens[1], out var defVal))
-                        throw new ScenarioParseException("S0001", scriptPath, lineIndex,
-                            "global variable value not a valid integer");
-
-                    if (!globals.Add(globalName, defVal))
-                        throw new ScenarioParseException("S0002", scriptPath, lineIndex,
-                            $"duplicate global named \"{globalName}\"");
-                }
-                else if (tokens[0].StartsWith(':'))
-                {
-                    var labelName = tokens[0][1..];
-                    writer.WriteLabel(labelName);
-                }
-                else
-                {
-                    var commandName = tokens[0];
-                    var args = new WritableTokenStreamImpl(tokens);
-                    if (!commands.TryGetValue(commandName, out var cmd))
-                        throw new ScenarioParseException("S0003", scriptPath, lineIndex,
-                            $"unknown command \"{commandName}\"");
-
-                    var data = cmd.Parse(new CommandParseContext(args));
-                    
-                    // No-op
-                    if (!data.HasValue)
-                        continue;
-                    
-                    writer.WriteCommandPacket(new CommandPacket(data.Value.Name, (scriptPath, lineIndex),
-                        [.. MarshalArguments(data.Value, (scriptPath, lineIndex))]));
-                }
+                ParseScriptLine(writer, commands, globals, ref lineIndex, line, scriptPath);
             }
         }
         finally
         {
             reader.Dispose();
+        }
+    }
+
+    private static void ParseScriptLine(BytecodeWriter writer, IReadOnlyDictionary<string, ICommand> commands, WritableGlobals globals,
+        ref int lineIndex, string line, string scriptPath)
+    {
+        lineIndex++;
+
+        // Skip empty lines
+        if (string.IsNullOrWhiteSpace(line))
+            return;
+
+        // Skip comments
+        var trimmedLine = line.TrimStart();
+        if (trimmedLine.StartsWith("//"))
+            return;
+
+        var tokens = trimmedLine.TokenizeWithStringHandling();
+        Debug.Assert(tokens.Count > 0);
+
+        if (tokens[0].StartsWith('$'))
+        {
+            var globalName = tokens[0][1..];
+            if (!int.TryParse(tokens[1], out var defVal))
+                throw new ScenarioParseException("SCR0001", scriptPath, lineIndex,
+                    "global variable value not a valid integer");
+
+            if (!globals.Add(globalName, defVal))
+                throw new ScenarioParseException("SCR0002", scriptPath, lineIndex,
+                    $"duplicate global named \"{globalName}\"");
+        }
+        else if (tokens[0].StartsWith(':'))
+        {
+            var labelName = tokens[0];
+            writer.WriteLabel(labelName);
+        }
+        else
+        {
+            var commandName = tokens[0];
+            var args = new WritableTokenStreamImpl(tokens, scriptPath, lineIndex);
+            if (!commands.TryGetValue(commandName, out var cmd))
+                throw new ScenarioParseException("SCR0003", scriptPath, lineIndex,
+                    $"unknown command \"{commandName}\"");
+            
+            try
+            {
+                var data = cmd.Parse(new CommandParseContext(args, (scriptPath, lineIndex)));
+                
+                // No-op
+                if (!data.HasValue)
+                    return;
+
+                if (data.Value.Arguments.Count > byte.MaxValue)
+                    throw new ScenarioParseException("SCR0008", scriptPath, lineIndex,
+                        "too many arguments in command (max 255)");
+
+
+                writer.WriteCommandPacket(new CommandPacket(data.Value.Name, (scriptPath, lineIndex),
+                    [.. MarshalArguments(data.Value, (scriptPath, lineIndex))]));
+            }
+            catch (CommandParseException ex)
+            {
+                throw new ScenarioParseException($"SCR{ex.ErrorCode:0000}", scriptPath, lineIndex, ex.Message);
+            }
         }
     }
 
@@ -220,7 +229,7 @@ public sealed class ScenarioProcessor : AssetProcessor
                 float f => new BytecodeFloat(f),
                 bool b => new BytecodeBoolean(b),
                 string s => new BytecodeString(s),
-                _ => throw new ScenarioParseException("S0004", source.Item1, source.Item2, $"bad command argument of type {arg.GetType().FullName}")
+                _ => throw new ScenarioParseException("SCR0004", source.Item1, source.Item2, $"bad command argument of type {arg.GetType().FullName}")
             };
         }
     }

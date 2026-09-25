@@ -3,10 +3,21 @@ using JetBrains.Annotations;
 namespace Radish.Scenario;
 
 [PublicAPI]
-public sealed class BytecodeReader(byte[] data, ScenarioStringTable stringTable)
+public sealed class BytecodeReader
 {
-    public int Position { get; private set; }
-    public int Length => data.Length;
+    private readonly byte[] _data;
+    private readonly ScenarioStringTable _stringTable;
+    
+    internal int ReadCount { get; set; }
+
+    internal BytecodeReader(byte[] data, ScenarioStringTable stringTable)
+    {
+        _data = data;
+        _stringTable = stringTable;
+    }
+
+    public int Position { get; internal set; }
+    public int Length => _data.Length;
     
     public unsafe byte ReadByte()
     {
@@ -53,20 +64,23 @@ public sealed class BytecodeReader(byte[] data, ScenarioStringTable stringTable)
     public string ReadString()
     {
         var stringIndex = ReadInteger();
-        if (stringIndex < 0 || stringIndex >= stringTable.Strings.Length)
+        if (stringIndex < 0 || stringIndex >= _stringTable.Strings.Length)
             throw new InvalidDataException($"Out of bounds string index {stringIndex}");
 
-        return stringTable.Strings[stringIndex];
+        return _stringTable.Strings[stringIndex];
     }
+
+    public int ReadStringIndex() => ReadInteger();
 
     private void ReadByteBlob(in Span<byte> dest)
     {
-        if (Position + dest.Length >= data.Length)
+        ReadCount++;
+        if (Position + dest.Length > _data.Length)
             throw new EndOfStreamException("Attempted to read out of bounds data from the bytecode blob");
         
         for (var i = 0; i < dest.Length; ++i)
         {
-            dest[i] = data[Position + i];
+            dest[i] = _data[Position + i];
         }
 
         Position += dest.Length;
