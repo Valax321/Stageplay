@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <AssemblyName>StageplayExample</AssemblyName>
+        <AssemblyName>ExampleGame</AssemblyName>
         <AssemblyTitle>Stageplay Example Game</AssemblyTitle>
         <ApplicationIcon>app.ico</ApplicationIcon>
     </PropertyGroup>
