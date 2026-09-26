@@ -1,0 +1,3 @@
+<Project>
+    <!-- This only exists to stops thirdparty modules from reading the Stageplay props file from up one directory. -->
+</Project>

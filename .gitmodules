@@ -1,3 +1,6 @@
 [submodule "source/thirdparty/Facepunch.Steamworks"]
 	path = source/thirdparty/Facepunch.Steamworks
 	url = https://github.com/Valax321/Facepunch.Steamworks.git
+[submodule "source/thirdparty/Foster"]
+	path = source/thirdparty/Foster
+	url = https://github.com/Valax321/Foster.git

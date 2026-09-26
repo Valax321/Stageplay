@@ -148,10 +148,11 @@ public sealed class StageplayRuntime : App
             cb(this);
     }
 
+    // We still just want to directly crash and burn in debug builds so exception breakpoints work properly
+#if !DEBUG
     /// <summary>
     /// Runs the application.
     /// </summary>
-    [DebuggerDisableUserUnhandledExceptions]
     public new void Run()
     {
         try
@@ -160,19 +161,12 @@ public sealed class StageplayRuntime : App
         }
         catch (Exception ex)
         {
-            if (System.Diagnostics.Debugger.IsAttached)
-                System.Diagnostics.Debugger.BreakForUserUnhandledException(ex);
-
-            // I've submitted a PR for adding a messagebox API to Foster.
-            // Until that's done, just do it directly with the SDL api.
-            // The benefit of the Foster implementation is being able to set the messagebox window
-            // properly, so the popup will be forced on top of the game window.
-
-            SDL.SDL_ShowSimpleMessageBox(SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_ERROR, "Fatal Error",
-                $"The game encountered an unrecoverable error and will now close.\n{ex.Message}", 0);
+            ShowMessageBox(MessageBoxIcon.Error, "Fatal Error",
+                $"The game encountered an unrecoverable error and will now close.\n{ex.Message}");
             Environment.ExitCode = 1;
         }
     }
+#endif
 
     /// <inheritdoc/>
     protected override void Startup()

@@ -23,21 +23,26 @@
     <ItemGroup>
         <None Remove="Libraries\**\*" />
 
-        <None Include="Libraries\win64\*.dll">
+        <None Include="Libraries\win64\*.dll" Visible="false">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Pack>true</Pack>
             <PackagePath>runtimes/win-x64/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
-        <None Include="Libraries\osx\*.dylib">
+        <None Include="Libraries\osx\*.dylib" Visible="false">
             <Pack>true</Pack>
             <PackagePath>runtimes/osx/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
-        <None Include="Libraries\linux64\*.so">
+        <None Include="Libraries\linux64\*.so" Visible="false">
             <Pack>true</Pack>
             <PackagePath>runtimes/linux-x64/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
-        <None Include="Libraries\linuxarm64\*.so">
+        <None Include="Libraries\linuxarm64\*.so" Visible="false">
             <Pack>true</Pack>
             <PackagePath>runtimes/linux-arm64/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
     </ItemGroup>
 
