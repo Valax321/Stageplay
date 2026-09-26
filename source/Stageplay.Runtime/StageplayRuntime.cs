@@ -55,6 +55,9 @@ public sealed class StageplayRuntime : App
     /// </summary>
     public ContentManager Content { get; }
     
+    /// <summary>
+    /// Manages the audio system for the runtime.
+    /// </summary>
     public AudioDevice Audio { get; }
     
     /// <summary>
@@ -83,6 +86,8 @@ public sealed class StageplayRuntime : App
     public IPlatformAchievements? Achievements { get; }
 
     public ScenarioVM? ActiveScenario { get; private set; }
+    
+    public ScenarioSoundManager SoundManager { get; }
 
     internal DebugMenu DebugMenu { get; }
 
@@ -127,6 +132,8 @@ public sealed class StageplayRuntime : App
         DebugMenu = new DebugMenu(this);
         _renderer = new Renderer(this);
         _settingsStore = info.LocalSettingsStore;
+
+        SoundManager = new ScenarioSoundManager(Audio, Content);
 
         if (platformImpl.AchievementsFactory is not null)
             Achievements = platformImpl.AchievementsFactory(this);

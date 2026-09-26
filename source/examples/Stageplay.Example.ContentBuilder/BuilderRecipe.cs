@@ -24,11 +24,15 @@ public class StageplayExampleRecipe : ICookRecipe
         });
         
         // Images are allowed anywhere in the content path.
-        // Handle some common formats.
+        // Handle some common formats, turn them into qoi.
         queue.AddByGlobPattern([
             "**/*.png",
             "**/*.jpg"
         ], new TextureProcessor());
+        
+        // Copy ogg sounds across verbatim
+        queue.AddByGlobPattern(["sounds/**/*.ogg", "music/**/*.ogg"], 
+            new AssetCopyProcessor());
     }
 }
 

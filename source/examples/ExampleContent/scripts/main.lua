@@ -1,3 +1,6 @@
+require "script_audio"
+
 function main()
-    print("Hello from lua!")
+    print("GameScript lua init")
+    setupGameSounds()
 end

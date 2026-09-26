@@ -156,7 +156,8 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
                 new MenuContainer.MenuItem($"Stageplay: {GitVersionInformation.SemVer} ({GitVersionInformation.BranchName}.{GitVersionInformation.ShortSha})", null),
                 new MenuContainer.MenuItem($"Framework: {RuntimeInformation.FrameworkDescription}", null),
                 new MenuContainer.MenuItem($"Foster: {App.FosterVersion.ToString(3)}", null),
-                new MenuContainer.MenuItem($"SDL: {GetSdlVersion(SDL.SDL_GetVersion())}", null)
+                new MenuContainer.MenuItem($"SDL: {GetSdlVersion(SDL.SDL_GetVersion())}", null),
+                new MenuContainer.MenuItem($"SDL_mixer: {GetSdlVersion(SDL_mixer.MIX_Version())}", null)
             }
         });
     }

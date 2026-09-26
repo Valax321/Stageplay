@@ -17,9 +17,12 @@ public sealed class LuaVM : IDisposable
     /// The lua state associated with this VM.
     /// </summary>
     public LuaState State { get; }
-
+    
+    private readonly StageplayRuntime _app;
+    
     internal LuaVM(StageplayRuntime app)
     {
+        _app = app;
         State = LuaState.Create(new LuaPlatform(
             new FosterLuaFilesystem(app),
             new FosterOsEnvironment(app),
@@ -45,6 +48,8 @@ public sealed class LuaVM : IDisposable
         env["print"] = LuaStaticVmFunctions.LogInfo;
         env["warn"] = LuaStaticVmFunctions.LogWarning;
         env["error"] = LuaStaticVmFunctions.LogError;
+        
+        env["audio"] = new LuaAudioBridge(_app);
     }
 
     internal void LoadMainModule()

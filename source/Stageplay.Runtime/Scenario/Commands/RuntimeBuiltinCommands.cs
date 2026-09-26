@@ -85,7 +85,7 @@ public static class RuntimeBuiltinCommands
 
         public CommandData? Parse(in CommandParseContext ctx)
         {
-            var bgName = $"images/{ctx.Tokens.AsString(0)}";
+            var bgName = $"images/{ctx.Tokens.AsString(0)}.qoi";
             ctx.RegisterAssetDependency(bgName);
             return new CommandData(ctx.Tokens.Command, bgName);
         }
@@ -144,7 +144,7 @@ public static class RuntimeBuiltinCommands
 
         public CommandData? Parse(in CommandParseContext ctx)
         {
-            var soundName = $"sound/{ctx.Tokens.AsString(0)}";
+            var soundName = $"sounds/{ctx.Tokens.AsString(0)}.ogg";
             ctx.RegisterAssetDependency(soundName);
 
             var soundChannel = -1;
