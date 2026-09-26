@@ -241,6 +241,9 @@ public sealed class StageplayRuntime : App
         // Don't do anything until title storage has loaded.
         if (!Content.IsTitleStorageReady)
             return;
+
+        if (Input.Keyboard.Pressed(Keys.F11))
+            Window.Fullscreen = !Window.Fullscreen;
         
         OnPreUpdate?.Invoke();
         ActiveScenario?.Update();
