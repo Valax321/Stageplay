@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using Radish.Audio;
 using Radish.Content;
+using Radish.Debugger;
 
 namespace Radish.Scenario;
 
@@ -46,5 +47,16 @@ public sealed class ScenarioSoundManager
         clip = new AudioClip(_device, s, new AudioClip.DecodeSettings(decompressInMemory, false));
         _precachedClips.Add(path, clip);
         return clip;
+    }
+
+    internal MenuContainer PushDebugMenu()
+    {
+        return new MenuContainer("Sound")
+        {
+            Items =
+            [
+                new MenuContainer.MenuItem("TEMP", null)
+            ]
+        };
     }
 }

@@ -72,14 +72,13 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
             Items =
             [
                 new MenuContainer.MenuItem("System", PushSystemMenu),
-                new MenuContainer.MenuItem("LuaScript", PushScriptingMenu),
+                new MenuContainer.MenuItem("Sound", PushSoundMenu),
                 new MenuContainer.MenuItem("Scenario", PushScenarioMenu)
             ]
         };
 
         var menuRect = new RectInt(16, 16, MenuWidth, 180);
         _rootDebugMenu.Draw(draw with { Viewport = menuRect });
-        DrawControls(in draw);
     }
 
     private void DrawStats(in DrawInfo draw)
@@ -93,18 +92,8 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
 
         draw.Batch.Text(draw.Font, sb.AsSpan(),
             draw.Viewport.TopRight + new Point2(-16, 16), TextJustify.Right,
-            BaseFontSize, Color.White
+            BaseFontSize, Color.Green
         );
-    }
-
-    private void DrawControls(in DrawInfo draw)
-    {
-        var pos = (Vector2)draw.Viewport.BottomLeft;
-        pos.Y -= (16 + draw.ScaledTextLineHeight);
-        pos.X += 16;
-
-        draw.Batch.Text(draw.Font, "// Arrow Keys | Dpad - navigate menus // F1 | L3 + Start - open debug menu //", pos,
-            BaseFontSize, Color.White);
     }
 
     private void OnRootMenuClosed()
@@ -138,6 +127,7 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
                 new MenuContainer.MenuItem($"Arch: {RuntimeInformation.ProcessArchitecture}", null),
                 new MenuContainer.MenuItem($"CPU Cores: {SDL.SDL_GetNumLogicalCPUCores()}", null),
                 new MenuContainer.MenuItem($"System RAM: {SDL.SDL_GetSystemRAM()}MB", null),
+                // FIXME: if PR gets accepted, we can add this back
                 //new MenuContainer.MenuItem($"GPU Device: {app.GraphicsDevice.Name}", null),
                 new MenuContainer.MenuItem($"GPU Driver: {app.GraphicsDevice.Driver}", null),
             }
@@ -165,15 +155,9 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
     private static Version GetSdlVersion(int version) => new(((version) / 1000000),
         (((version) / 1000) % 1000), ((version) % 1000));
 
-    private void PushScriptingMenu(MenuContainer parent)
+    private void PushSoundMenu(MenuContainer parent)
     {
-        parent.PushSubMenu(new MenuContainer("LuaScript")
-        {
-            Items =
-            {
-                new MenuContainer.MenuItem("TODO", null)
-            }
-        });
+        parent.PushSubMenu(app.SoundManager.PushDebugMenu());
     }
 
     private void PushScenarioMenu(MenuContainer parent)
