@@ -5,9 +5,9 @@ namespace Radish.Content;
 /// <summary>
 /// Loads and caches assets of a single type.
 /// </summary>
-/// <param name="content">The content manager to load assets from/</param>
+/// <param name="content">The content manager to load assets from.</param>
 /// <typeparam name="TAsset">The type of the asset.</typeparam>
-public sealed class ResourceProvider<TAsset>(ContentManager content)
+public abstract class ResourceProvider<TAsset>(ContentManager content)
     where TAsset : class
 {
     private record Ref(string Path, TAsset Asset);
@@ -47,14 +47,19 @@ public sealed class ResourceProvider<TAsset>(ContentManager content)
         if (refNode is not null)
             return refNode.Value.Asset;
 
-        if (!content.Exists<TAsset>(path))
+        if (!Exists(path))
             return null;
 
-        var asset = content.Load<TAsset>(path);
+        var loadTask = LoadAsyncImpl(path, CancellationToken.None).AsTask();
+        loadTask.Wait();
+        var asset = loadTask.Result;
         
         _cache.AddLast(new Ref(path, asset));
         return asset;
     }
+
+    protected abstract bool Exists(string path);
+    protected abstract ValueTask<TAsset> LoadAsyncImpl(string path, CancellationToken token);
 
     /// <summary>
     /// Loads an asset asynchronously.
@@ -67,11 +72,11 @@ public sealed class ResourceProvider<TAsset>(ContentManager content)
         if (refNode is not null)
             return new SyncResourceLoadOperation<TAsset>(refNode.Value.Asset);
         
-        if (!content.Exists<TAsset>(path))
+        if (!Exists(path))
             return null;
 
         var cts = new CancellationTokenSource();
-        var task = content.LoadAsync<TAsset>(path, cts.Token);
+        var task = LoadAsyncImpl(path, cts.Token);
         return new TaskResourceLoadOperation<TAsset>(task.AsTask(), cts);
     }
 

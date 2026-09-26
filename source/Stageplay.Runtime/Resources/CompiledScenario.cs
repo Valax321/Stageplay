@@ -57,13 +57,13 @@ public sealed partial class CompiledScenario : IBinarySerializable
         return loc;
     }
 
-    internal sealed class Loader : ContentLoader<CompiledScenario>
+    public static CompiledScenario Load(Stream source)
     {
-        public override string GetFileExtension(ContentManager content, string originalPath) => ".bscn";
-
-        protected override ValueTask<CompiledScenario> LoadTyped(ContentManager content, Stream source, CancellationToken token)
-        {
-            return BinaryObject.FromStreamAsync<CompiledScenario>(source);
-        }
+        return BinaryObject.FromStream<CompiledScenario>(source);
+    }
+    
+    public static ValueTask<CompiledScenario> LoadAsync(Stream source)
+    {
+        return BinaryObject.FromStreamAsync<CompiledScenario>(source);
     }
 }

@@ -30,18 +30,14 @@ public sealed partial class LuaBytecodeModule : ILuaModule, IBinarySerializable
     {
         return new LuaModule(name, Bytecode);
     }
-    
-    #region Content Loader
-    
-    internal sealed class Loader : ContentLoader<LuaBytecodeModule>
-    {
-        public override string GetFileExtension(ContentManager content, string originalPath) => ".luac";
 
-        protected override async ValueTask<LuaBytecodeModule> LoadTyped(ContentManager content, Stream source, CancellationToken token)
-        {
-            return await BinaryObject.FromStreamAsync<LuaBytecodeModule>(source);
-        }
+    public static async ValueTask<LuaBytecodeModule> LoadAsync(Stream stream)
+    {
+        return await BinaryObject.FromStreamAsync<LuaBytecodeModule>(stream);
     }
     
-    #endregion
+    public static LuaBytecodeModule Load(Stream stream)
+    {
+        return BinaryObject.FromStream<LuaBytecodeModule>(stream);
+    }
 }

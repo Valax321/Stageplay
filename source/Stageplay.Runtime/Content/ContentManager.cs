@@ -1,8 +1,7 @@
 #define USE_DIRECTORY_STORAGE
 using Foster.Framework;
-using Radish.Graphics;
+using JetBrains.Annotations;
 using Radish.IO;
-using Radish.Resources;
 using SDL3;
 
 namespace Radish.Content;
@@ -10,6 +9,7 @@ namespace Radish.Content;
 /// <summary>
 /// Manages the loading of game content using file-based APIs, and a typed content loader API.
 /// </summary>
+[PublicAPI]
 public sealed class ContentManager : IDisposable
 {
     /// <summary>
@@ -28,15 +28,6 @@ public sealed class ContentManager : IDisposable
     private readonly LinkedList<FsArcStorage> _archives = [];
     private readonly string _titleStoragePath;
     private readonly StageplayRuntime _app;
-
-    private static readonly Dictionary<Type, ContentLoader> Loaders = [];
-
-    static ContentManager()
-    {
-        RegisterLoader<Texture, TextureLoader>();
-        RegisterLoader<LuaBytecodeModule, LuaBytecodeModule.Loader>();
-        RegisterLoader<CompiledScenario, CompiledScenario.Loader>();
-    }
 
     internal ContentManager(StageplayRuntime app)
     {
@@ -133,6 +124,9 @@ public sealed class ContentManager : IDisposable
         return _titleStorage.OpenRead(path);
     }
     
+    public Stream OpenReadOrThrow(string path) 
+        => OpenRead(path) ?? throw new FileNotFoundException("Could not open file from content manager", path);
+    
     /// <summary>
     /// Enumerates the files and directories present in the filesystem at the given path.
     /// </summary>
@@ -158,74 +152,6 @@ public sealed class ContentManager : IDisposable
 
         foreach (var f in _titleStorage.EnumerateDirectory(path, searchPattern, searchOption))
             yield return f;
-    }
-
-    /// <summary>
-    /// Check if an asset exists and if it can be loaded as the given type.
-    /// </summary>
-    /// <param name="assetName">The asset name to load, without its extension.</param>
-    /// <typeparam name="T">The type of asset to load.</typeparam>
-    /// <returns>True if it can be loaded, otherwise false.</returns>
-    public bool Exists<T>(string assetName) where T : class
-    {
-        if (!Loaders.TryGetValue(typeof(T), out var loader))
-            return false;
-
-        var path = Path.ChangeExtension(assetName, loader.GetFileExtension(this, assetName));
-        return FileExists(path);
-    }
-
-    /// <summary>
-    /// Performs a blocking load of the asset.
-    /// If loading fails for any reason, an exception is thrown.
-    /// </summary>
-    /// <seealso cref="LoadAsync"/>
-    /// <param name="assetName">The asset name to load, without its extension.</param>
-    /// <typeparam name="T">The type of asset to load.</typeparam>
-    /// <returns>The loaded asset.</returns>
-    public T Load<T>(string assetName) where T : class
-    {
-        // Sync load just halts the current thread until the async task is finished.
-        var task = LoadAsync<T>(assetName);
-        if (task.IsCompleted)
-            return task.Result;
-
-        var tt = task.AsTask();
-        tt.Wait();
-        return tt.Result;
-    }
-
-    /// <summary>
-    /// Performs a non-blocking load of the asset.
-    /// If loading fails for any reason, an exception is thrown.
-    /// </summary>
-    /// <seealso cref="Load"/>
-    /// <param name="assetName">The asset name to load, without its extension.</param>
-    /// <param name="token">Cancellation token to allow cancelling the load task.</param>
-    /// <typeparam name="T">The type of asset to load.</typeparam>
-    /// <returns>The loaded asset.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if a loader is not registered for this asset type.</exception>
-    /// <exception cref="FileNotFoundException">Thrown if a stream could not be opened for the asset's file.</exception>
-    public async ValueTask<T> LoadAsync<T>(string assetName, CancellationToken token = new()) where T : class
-    {
-        if (!Loaders.TryGetValue(typeof(T), out var loader))
-            throw new InvalidOperationException("Loading asset without a loader, check Exists() first");
-
-        var path = Path.ChangeExtension(assetName, loader.GetFileExtension(this, assetName));
-        await using var fs = OpenRead(path) ?? throw new FileNotFoundException(null, path);
-        return (T)await loader.Load(this, fs, token);
-    }
-
-    /// <summary>
-    /// Register a new loader class with the content manager.
-    /// </summary>
-    /// <typeparam name="TAsset">The type of asset being loaded.</typeparam>
-    /// <typeparam name="TLoader">The type responsible for loading the asset.</typeparam>
-    public static void RegisterLoader<TAsset, TLoader>()
-        where TAsset : class
-        where TLoader : ContentLoader<TAsset>, new()
-    {
-        Loaders.Add(typeof(TAsset), new TLoader());
     }
 
     /// <inheritdoc/>

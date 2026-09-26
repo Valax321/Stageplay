@@ -196,10 +196,13 @@ public sealed class StageplayRuntime : App
 
     private bool LoadScenarioByName(string name)
     {
-        if (!Content.Exists<CompiledScenario>(name))
-            return false;
+        var scenarioName = $"{name}.bscn";
         
-        var scenarioScript = Content.Load<CompiledScenario>(name);
+        if (!Content.FileExists(scenarioName))
+            return false;
+
+        using var fs = Content.OpenReadOrThrow(scenarioName);
+        var scenarioScript = CompiledScenario.Load(fs);
         ActiveScenario = new ScenarioVM(this, name, scenarioScript, RuntimeBuiltinCommands.Table);
         return true;
     }
