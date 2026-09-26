@@ -14,29 +14,36 @@
     <ItemGroup>
         <None Remove="Libraries\**\*" />
 
-        <None Include="Libraries\win-x64\*.dll">
+        <None Include="Libraries\win-x64\*.dll" Visible="false">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Pack>true</Pack>
             <PackagePath>runtimes/win-x64/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
-        <None Include="Libraries\win-x86\*.dll">
+        <None Include="Libraries\win-x86\*.dll" Visible="false">
             <Pack>true</Pack>
             <PackagePath>runtimes/win-x86/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
-        <None Include="Libraries\win-arm64\*.dll">
+        <None Include="Libraries\win-arm64\*.dll" Visible="false">
             <Pack>true</Pack>
             <PackagePath>runtimes/win-arm64/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
-        <None Include="Libraries\osx\*.dylib">
+        <None Include="Libraries\osx\*.dylib" Visible="false">
             <Pack>true</Pack>
             <PackagePath>runtimes/osx/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
-        <None Include="Libraries\linux-x64\*.so">
+        <None Include="Libraries\linux-x64\*.so" Visible="false">
             <Pack>true</Pack>
             <PackagePath>runtimes/linux-x64/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
-        <None Include="Libraries\linux-arm64\*.so">
+        <None Include="Libraries\linux-arm64\*.so" Visible="false">
             <Pack>true</Pack>
             <PackagePath>runtimes/linux-arm64/native</PackagePath>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
     </ItemGroup>
 
@@ -45,13 +52,16 @@
         <PackageReference Include="LuaCSharp" Version="0.5.6" />
         <PackageReference Include="MemoryPack" Version="1.21.4" />
         <PackageReference Include="ZString" Version="2.6.0" />
-        <PackageReference Include="FosterFramework" Version="0.4.2" />
     </ItemGroup>
 
     <ItemGroup>
         <EmbeddedResource Include="Content/EmbeddedAssets/Fonts/**" Visible="false">
             <LogicalName>Fonts/%(Filename)%(Extension)</LogicalName>
         </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\thirdparty\Foster\Framework\Foster.Framework.csproj" />
     </ItemGroup>
 
 </Project>
