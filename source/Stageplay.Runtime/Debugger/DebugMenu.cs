@@ -1,7 +1,7 @@
-using System.Numerics;
 using System.Runtime.InteropServices;
 using Cysharp.Text;
 using Foster.Framework;
+using Radish.Utility;
 using SDL3;
 
 namespace Radish.Debugger;
@@ -142,9 +142,8 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
                 new MenuContainer.MenuItem($"Game: {app.GameInfo.ApplicationName}", null),
                 new MenuContainer.MenuItem($"Version: {app.GameInfo.Version.ToString(3)}", null),
                 new MenuContainer.MenuItem(LineSepText, null),
-                new MenuContainer.MenuItem($"Stageplay: {GitVersionInformation.SemVer} ({GitVersionInformation.BranchName}.{GitVersionInformation.ShortSha})", null),
+                new MenuContainer.MenuItem($"Stageplay: {StageplayVersion.Version}", null),
                 new MenuContainer.MenuItem($"Framework: {RuntimeInformation.FrameworkDescription}", null),
-                new MenuContainer.MenuItem($"Foster: {App.FosterVersion.ToString(3)}", null),
                 new MenuContainer.MenuItem($"SDL: {GetSdlVersion(SDL.SDL_GetVersion())}", null),
                 new MenuContainer.MenuItem($"SDL_mixer: {GetSdlVersion(SDL_mixer.MIX_Version())}", null)
             }

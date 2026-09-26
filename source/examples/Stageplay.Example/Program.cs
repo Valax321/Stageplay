@@ -1,11 +1,12 @@
-﻿using Foster.Framework;
+﻿using System.Reflection;
+using Foster.Framework;
 using Radish;
 using Radish.Steamworks;
 
 var gameInfo = new GameInfo("Audrey Castillo",
     "Stageplay Foster Example",
     "zone.audrey.foster-example",
-    Version.Parse(GitVersionInformation.AssemblySemVer),
+    Assembly.GetExecutingAssembly().GetName().Version!,
     new Point2(640, 480) // Test assets from The Closet are this size
 );
 

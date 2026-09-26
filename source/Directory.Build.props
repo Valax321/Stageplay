@@ -21,11 +21,4 @@
         <!-- Frankly I don't even know why this is a warning at all -->
         <NoWarn>CA2255</NoWarn>
     </PropertyGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="GitVersion.MsBuild" Version="6.8.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
 </Project>

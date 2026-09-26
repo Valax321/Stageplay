@@ -12,6 +12,7 @@ using Radish.Platform;
 using Radish.Resources;
 using Radish.Scenario;
 using Radish.Scenario.Commands;
+using Radish.Utility;
 using SDL3;
 
 namespace Radish;
@@ -122,7 +123,7 @@ public sealed class StageplayRuntime : App
     {
         Current = this;
 
-        Log.Info($"Stageplay {GitVersionInformation.SemVer}.{GitVersionInformation.ShortSha}");
+        Log.Info($"Stageplay {StageplayVersion.Version}");
         Log.Info($"Framework: {RuntimeInformation.FrameworkDescription}");
         Log.Info($"Platform: {RuntimeInformation.OSDescription} {RuntimeInformation.ProcessArchitecture}");
 
