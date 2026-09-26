@@ -127,8 +127,7 @@ internal sealed class DebugMenu(StageplayRuntime app) : IDebugMenu
                 new MenuContainer.MenuItem($"Arch: {RuntimeInformation.ProcessArchitecture}", null),
                 new MenuContainer.MenuItem($"CPU Cores: {SDL.SDL_GetNumLogicalCPUCores()}", null),
                 new MenuContainer.MenuItem($"System RAM: {SDL.SDL_GetSystemRAM()}MB", null),
-                // FIXME: if PR gets accepted, we can add this back
-                //new MenuContainer.MenuItem($"GPU Device: {app.GraphicsDevice.Name}", null),
+                new MenuContainer.MenuItem($"GPU Device: {app.GraphicsDevice.Name}", null),
                 new MenuContainer.MenuItem($"GPU Driver: {app.GraphicsDevice.Driver}", null),
             }
         });
