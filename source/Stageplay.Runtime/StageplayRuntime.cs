@@ -1,8 +1,8 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Foster.Framework;
 using JetBrains.Annotations;
+using Radish.Audio;
 using Radish.Content;
 using Radish.Debugger;
 using Radish.Graphics;
@@ -54,6 +54,8 @@ public sealed class StageplayRuntime : App
     /// The content/file loading API for the runtime.
     /// </summary>
     public ContentManager Content { get; }
+    
+    public AudioDevice Audio { get; }
     
     /// <summary>
     /// The custom game logic class for the runtime.
@@ -120,6 +122,7 @@ public sealed class StageplayRuntime : App
         Game = info.GameFactory(this);
         Content = new ContentManager(this);
         Lua = new LuaVM(this);
+        Audio = new AudioDevice();
         
         DebugMenu = new DebugMenu(this);
         _renderer = new Renderer(this);
@@ -201,6 +204,7 @@ public sealed class StageplayRuntime : App
         
         Game.PreShutdown();
         
+        Audio.Dispose();
         _renderer.Dispose();
         Lua.Dispose();
         Content.Dispose();

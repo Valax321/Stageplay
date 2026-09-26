@@ -27,7 +27,7 @@ using static SDL;
 [PublicAPI]
 internal static partial class SDL_mixer
 {
-    private const string NativeLibraryName = "SDL_mixer";
+    private const string NativeLibraryName = "SDL3_mixer";
     
     #region Constants
 
@@ -333,6 +333,10 @@ internal static partial class SDL_mixer
 
     [LibraryImport(NativeLibraryName, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    public static partial IntPtr MIX_LoadAudioWithProperties(uint props);
+
+    [LibraryImport(NativeLibraryName, StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial IntPtr MIX_LoadRawAudio(IntPtr mixer, IntPtr data, nuint datalen, IntPtr spec);
 
     [LibraryImport(NativeLibraryName, StringMarshalling = StringMarshalling.Utf8)]
@@ -481,7 +485,7 @@ internal static partial class SDL_mixer
     
     [LibraryImport(NativeLibraryName, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial SDLBool MIX_SetTrackStoppedCallback(IntPtr stack, MIX_TrackStoppedCallback cb, IntPtr userdata);
+    public static partial SDLBool MIX_SetTrackStoppedCallback(IntPtr track, MIX_TrackStoppedCallback? cb, IntPtr userdata);
 
     [LibraryImport(NativeLibraryName, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
