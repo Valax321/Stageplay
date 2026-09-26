@@ -32,12 +32,28 @@ internal sealed class Renderer : IDisposable
     private void DrawGameView(Window window)
     {
         var windowSz = window.SizeInPixels;
+
+        var windowAspect = (float)windowSz.X / windowSz.Y;
         var designSizeAspect = (float)_app.GameInfo.DesignSize.X / _app.GameInfo.DesignSize.Y;
-        var drawSize = new Point2((int)(windowSz.Y * designSizeAspect), windowSz.Y);
-        var drawScale = (float)windowSz.Y / _app.GameInfo.DesignSize.Y;
 
         var compBatch = _batcherPool.Get();
-        var compDrawPos = new Point2(
+        
+        Point2 drawSize;
+        float drawScale;
+
+        if (windowAspect >= designSizeAspect)
+        {
+            drawSize = new Point2((int)(windowSz.Y * designSizeAspect), windowSz.Y);
+            drawScale = (float)windowSz.Y / _app.GameInfo.DesignSize.Y;
+        }
+        else
+        {
+            var oneOverAspect = 1 / designSizeAspect;
+            drawSize = new Point2(windowSz.X, (int)(windowSz.Y * oneOverAspect));
+            drawScale = (float)windowSz.X / _app.GameInfo.DesignSize.X;
+        }
+        
+        var sceneDrawPos = new Point2(
             (int)((windowSz.X - drawSize.X) / 2.0),
             (int)((windowSz.Y - drawSize.Y) / 2.0)
         );
@@ -58,7 +74,7 @@ internal sealed class Renderer : IDisposable
             // TODO: implement masked drawing (needs custom shader)
             compBatch.ImageStretch(
                 new Subtexture(scene.Texture), 
-                new Rect(compDrawPos, drawSize), 
+                new Rect(sceneDrawPos, drawSize), 
                 scene.BlendColor
             );
         }
@@ -70,21 +86,12 @@ internal sealed class Renderer : IDisposable
     private void DrawDebugUI(Window dest)
     {
         var batcher = _batcherPool.Get();
-
-        var windowSz = dest.SizeInPixels;
-        var designSizeAspect = (float)_app.GameInfo.DesignSize.X / _app.GameInfo.DesignSize.Y;
-        var drawSize = new Point2((int)(windowSz.Y * designSizeAspect), windowSz.Y);
-        var uiDrawPos = new Vector2(
-            (int)((windowSz.X - drawSize.X) / 2.0),
-            (int)((windowSz.Y - drawSize.Y) / 2.0)
-        ) / dest.ContentScale.Y;
         
         // Clamp the UI area to the design size area
         var uiSz = (dest.SizeInPixels / dest.ContentScale.Y).FloorToPoint2();
-        uiSz.X = (int)(uiSz.Y * designSizeAspect);
 
         // Scales the debug menu according to DPI scale
-        batcher.PushMatrix(uiDrawPos * dest.ContentScale.Y, Vector2.One *  dest.ContentScale.Y, 0);
+        batcher.PushMatrix(Vector2.Zero, Vector2.One * dest.ContentScale.Y, 0);
 
         _app.DebugMenu.Draw(batcher, new RectInt(Point2.Zero, uiSz));
         

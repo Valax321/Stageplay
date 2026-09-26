@@ -22,7 +22,12 @@ namespace Radish;
 [PublicAPI]
 public sealed class StageplayRuntime : App
 {
-    internal record StartupInfo(Func<StageplayRuntime, Game> GameFactory, GameInfo GameInfo, CommandLine CommandLine, LocalSettingsStore? LocalSettingsStore);
+    internal record StartupInfo(
+        Func<StageplayRuntime, Game> GameFactory,
+        GameInfo GameInfo,
+        CommandLine CommandLine,
+        LocalSettingsStore? LocalSettingsStore);
+
     internal record PlatformSystemImplementations(Func<StageplayRuntime, IPlatformAchievements>? AchievementsFactory);
 
     /// <summary>
@@ -37,56 +42,56 @@ public sealed class StageplayRuntime : App
     {
         return new StageplayRuntimeBuilder(
             new StartupInfo(
-                rt => new TGame { Runtime = rt }, 
-                gameInfo, 
+                rt => new TGame { Runtime = rt },
+                gameInfo,
                 new CommandLine(args),
                 new LocalSettingsStore(gameInfo)
             )
         );
     }
-    
+
     /// <summary>
     /// The currently active runtime instance.
     /// </summary>
     public static StageplayRuntime? Current { get; private set; }
-    
+
     /// <summary>
     /// The content/file loading API for the runtime.
     /// </summary>
     public ContentManager Content { get; }
-    
+
     /// <summary>
     /// Manages the audio system for the runtime.
     /// </summary>
     public AudioDevice Audio { get; }
-    
+
     /// <summary>
     /// The custom game logic class for the runtime.
     /// </summary>
     public Game Game { get; }
-    
+
     /// <summary>
     /// The game description for the runtime.
     /// </summary>
     public GameInfo GameInfo { get; }
-    
+
     /// <summary>
     /// The parsed command line arguments for the runtime.
     /// </summary>
     public CommandLine CommandLineArguments { get; }
-    
+
     /// <summary>
     /// The global Lua VM for the runtime.
     /// </summary>
     public LuaVM Lua { get; }
-    
+
     /// <summary>
     /// The platform's achievement provider, if one exists.
     /// </summary>
     public IPlatformAchievements? Achievements { get; }
 
     public ScenarioVM? ActiveScenario { get; private set; }
-    
+
     public ScenarioSoundManager SoundManager { get; }
 
     internal DebugMenu DebugMenu { get; }
@@ -95,12 +100,12 @@ public sealed class StageplayRuntime : App
     /// Invoked when the runtime is starting up.
     /// </summary>
     public event Action? OnStartup;
-    
+
     /// <summary>
     /// Invoked every frame before any other update work is done.
     /// </summary>
     public event Action? OnPreUpdate;
-    
+
     /// <summary>
     /// Invoked after all other game systems have shut down.
     /// </summary>
@@ -112,23 +117,24 @@ public sealed class StageplayRuntime : App
     /// <summary>
     /// Creates a new app instance. Do not call this directly, it needs to be public for dependency injection to be able to create it.
     /// </summary>
-    internal StageplayRuntime(StartupInfo info, PlatformSystemImplementations platformImpl, IEnumerable<Action<StageplayRuntime>> initCallbacks) : base(MakeAppConfigFromStartupInfo(info))
+    internal StageplayRuntime(StartupInfo info, PlatformSystemImplementations platformImpl,
+        IEnumerable<Action<StageplayRuntime>> initCallbacks) : base(MakeAppConfigFromStartupInfo(info))
     {
         Current = this;
-        
+
         Log.Info($"Stageplay {GitVersionInformation.SemVer}.{GitVersionInformation.ShortSha}");
         Log.Info($"Framework: {RuntimeInformation.FrameworkDescription}");
         Log.Info($"Platform: {RuntimeInformation.OSDescription} {RuntimeInformation.ProcessArchitecture}");
 
         GraphicsDevice.VSync = true;
-        
+
         CommandLineArguments = info.CommandLine;
         GameInfo = info.GameInfo;
         Game = info.GameFactory(this);
         Content = new ContentManager(this);
         Lua = new LuaVM(this);
         Audio = new AudioDevice();
-        
+
         DebugMenu = new DebugMenu(this);
         _renderer = new Renderer(this);
         _settingsStore = info.LocalSettingsStore;
@@ -156,7 +162,7 @@ public sealed class StageplayRuntime : App
         {
             if (System.Diagnostics.Debugger.IsAttached)
                 System.Diagnostics.Debugger.BreakForUserUnhandledException(ex);
-            
+
             // I've submitted a PR for adding a messagebox API to Foster.
             // Until that's done, just do it directly with the SDL api.
             // The benefit of the Foster implementation is being able to set the messagebox window
@@ -174,12 +180,12 @@ public sealed class StageplayRuntime : App
         Content.TitleStorageReady += ActualStartup;
         Content.LoadTitleStorage();
     }
-    
+
     private void ActualStartup()
     {
         Log.Info("Runtime startup");
         OnStartup?.Invoke();
-        
+
         Game.MountContent(Content);
         Lua.LoadMainModule();
         Game.PostStartup();
@@ -190,14 +196,15 @@ public sealed class StageplayRuntime : App
     {
         if (!LoadScenarioByName("init"))
         {
-            Log.Error("Init scenario is missing. All Stageplay games must have at least a scenario named \"init.scenario\".");
+            Log.Error(
+                "Init scenario is missing. All Stageplay games must have at least a scenario named \"init.scenario\".");
         }
     }
 
     private bool LoadScenarioByName(string name)
     {
         var scenarioName = $"{name}.bscn";
-        
+
         if (!Content.FileExists(scenarioName))
             return false;
 
@@ -211,15 +218,15 @@ public sealed class StageplayRuntime : App
     protected override void Shutdown()
     {
         Log.Info("Runtime shutdown");
-        
+
         Game.PreShutdown();
-        
+
         Audio.Dispose();
         _renderer.Dispose();
         Lua.Dispose();
         Content.Dispose();
         OnShutdown?.Invoke();
-        
+
         if (Current == this)
             Current = null;
     }
@@ -244,7 +251,7 @@ public sealed class StageplayRuntime : App
 
         if (Input.Keyboard.Pressed(Keys.F11))
             Window.Fullscreen = !Window.Fullscreen;
-        
+
         OnPreUpdate?.Invoke();
         ActiveScenario?.Update();
     }
@@ -258,10 +265,10 @@ public sealed class StageplayRuntime : App
             Window.Clear(Color.Black);
             return;
         }
-        
+
         _renderer.DrawFrame(Window);
     }
-    
+
     private static AppConfig MakeAppConfigFromStartupInfo(StartupInfo startupInfo)
     {
         var sz = startupInfo.GameInfo.DesignSize;
@@ -289,8 +296,9 @@ public sealed class StageplayRuntime : App
         var flags = AppFlags.NoHeaderLog;
         if (startupInfo.CommandLine.Contains("gpuDebug"))
             flags |= AppFlags.GraphicsDebugging;
-        
-        return new AppConfig(startupInfo.GameInfo.ApplicationName, startupInfo.GameInfo.ApplicationName, sz.X, sz.Y, fullscreen, false,
+
+        return new AppConfig(startupInfo.GameInfo.ApplicationName, startupInfo.GameInfo.ApplicationName, sz.X, sz.Y,
+            fullscreen, true,
             UpdateMode.UnlockedStep(), Flags: flags);
     }
 }
