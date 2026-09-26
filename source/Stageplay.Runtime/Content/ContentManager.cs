@@ -1,3 +1,4 @@
+#define USE_DIRECTORY_STORAGE
 using Foster.Framework;
 using Radish.Graphics;
 using Radish.IO;
@@ -55,11 +56,22 @@ public sealed class ContentManager : IDisposable
     {
         Log.Info($"Title storage path: {_titleStoragePath}");
 
+        // Look, SDL_Storage should in theory be a great idea, but the fact
+        // that I'm forced to load the entire file into memory makes it unsuitable
+        // for any application that actually needs to *stream* data (the entire point for SDL even
+        // having an IOStream interface in the first place!)
+        // FsArc uses the normal .NET io stuff anyway, so until I literally hit a brick wall of a platform
+        // that won't let me use any other file API I'm gonna do it.
+#if !USE_DIRECTORY_STORAGE
         _app.FileSystem.OpenTitleStorage(_titleStoragePath, s =>
         {
             _titleStorage = s;
             TitleStorageReady?.Invoke();
         });
+#else
+        _titleStorage = new DirectoryStorage(_titleStoragePath);
+        TitleStorageReady?.Invoke();
+#endif
     }
 
     /// <summary>
