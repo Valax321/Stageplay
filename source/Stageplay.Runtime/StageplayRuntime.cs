@@ -203,7 +203,7 @@ public sealed class StageplayRuntime : App
 
         using var fs = Content.OpenReadOrThrow(scenarioName);
         var scenarioScript = CompiledScenario.Load(fs);
-        ActiveScenario = new ScenarioVM(this, name, scenarioScript, RuntimeBuiltinCommands.Table);
+        ActiveScenario = new ScenarioVM(this, scenarioName, scenarioScript, RuntimeBuiltinCommands.Table);
         return true;
     }
 

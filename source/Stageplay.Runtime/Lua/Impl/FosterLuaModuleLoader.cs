@@ -8,24 +8,24 @@ internal sealed class FosterLuaModuleLoader(StageplayRuntime app) : ILuaModuleLo
 {
     private readonly ContentManager _content = app.Content;
 
+    private static string GetModulePath(string moduleName) 
+        => $"scripts/{moduleName.Replace('/', '.')}.lua";
+
     public bool Exists(string moduleName)
     {
-        var path = $"scripts/{moduleName.Replace('/', '.')}.lua";
-        return _content.FileExists(path);
+        return _content.FileExists(GetModulePath(moduleName));
     }
 
     public async ValueTask<LuaModule> LoadAsync(string moduleName, CancellationToken cancellationToken = new())
     {
-        var path = $"scripts/{moduleName.Replace('/', '.')}.lua";
-        await using var fs = _content.OpenReadOrThrow(path);
+        await using var fs = _content.OpenReadOrThrow(GetModulePath(moduleName));
         var bc = await LuaBytecodeModule.LoadAsync(fs);
         return bc.CreateModule(moduleName);
     }
 
     public LuaModule Load(string moduleName)
     {
-        var path = $"scripts/{moduleName.Replace('/', '.')}";
-        using var fs = _content.OpenReadOrThrow(path);
+        using var fs = _content.OpenReadOrThrow(GetModulePath(moduleName));
         var bc = LuaBytecodeModule.Load(fs);
         return bc.CreateModule(moduleName);
     }
