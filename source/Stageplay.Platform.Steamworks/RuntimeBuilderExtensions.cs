@@ -22,6 +22,13 @@ public static class RuntimeBuilderExtensions
         /// <returns>The input builder instance.</returns>
         public StageplayRuntimeBuilder WithSteamworks(uint appId, bool callRestartAppIfNecessary = true, bool errorIfSteamInitFailed = false)
         {
+            // We can't use The CommandLine parser the runtime has since this is called before that is created.
+            if (Environment.GetCommandLineArgs().Contains("-nosteam", StringComparer.InvariantCultureIgnoreCase))
+            {
+                errorIfSteamInitFailed = false;
+                callRestartAppIfNecessary = false;
+            }
+            
             if (callRestartAppIfNecessary && SteamClient.RestartAppIfNecessary(appId))
                 Environment.Exit(0);
 
