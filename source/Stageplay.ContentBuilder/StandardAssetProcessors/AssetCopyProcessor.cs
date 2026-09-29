@@ -11,6 +11,8 @@ public sealed class AssetCopyProcessor : AssetProcessor
         try
         {
             var outFile = MakeOutputFileFromInput(input);
+            
+            EnsureFileDirectoryExists(outFile);
             input.ContentFile.CopyTo(outFile.FullName, true);
 
             return Task.FromResult(new AssetProcessorResult([outFile.FullName]));
