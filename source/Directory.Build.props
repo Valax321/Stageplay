@@ -16,7 +16,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>14</LangVersion>
-        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+        <IsAotCompatible>true</IsAotCompatible>
         
         <!-- Frankly I don't even know why this is a warning at all -->
         <NoWarn>CA2255</NoWarn>

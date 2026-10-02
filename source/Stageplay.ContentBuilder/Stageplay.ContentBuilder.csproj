@@ -4,7 +4,7 @@
         <Title>Stageplay Content Builder</Title>
         <Description>APIs for converting game content into runtime formats. It's like MonoGame's new content builder, but framework-agnostic.</Description>
         <RootNamespace>Radish.ContentBuilder</RootNamespace>
-        <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+        <IsAotCompatible>false</IsAotCompatible>
     </PropertyGroup>
 
     <PropertyGroup>

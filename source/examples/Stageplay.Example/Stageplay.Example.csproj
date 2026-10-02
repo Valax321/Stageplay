@@ -5,8 +5,32 @@
         <AssemblyName>ExampleGame</AssemblyName>
         <AssemblyTitle>Stageplay Example Game</AssemblyTitle>
         <ApplicationIcon>app.ico</ApplicationIcon>
+        <PublishAot>true</PublishAot>
+        
+        <!-- Useful for debugging, but most projects don't need this on -->
+        <TrimmerSingleWarn>false</TrimmerSingleWarn>
+        
+        <!-- Enable trimming for features we don't need -->
+        <EventSourceSupport>false</EventSourceSupport>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <MetricsSupport>false</MetricsSupport>
+        <StackTraceSupport>false</StackTraceSupport>
+        <UseSystemResourceKeys>true</UseSystemResourceKeys>
     </PropertyGroup>
-
+    
+    <ItemGroup>
+        <DirectPInvoke Include="SDL3" />
+        <DirectPInvoke Include="SDL3_mixer" />
+        <DirectPInvoke Include="steam_api64" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+        <DirectPInvoke Include="steam_api" Condition="!$(RuntimeIdentifier.StartsWith('win'))" />
+    </ItemGroup>
+    
+    <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('win'))">
+        <NativeLibrary Include="..\..\Stageplay.Runtime\Libraries\$(RuntimeIdentifier)\SDL3.lib" />
+        <NativeLibrary Include="..\..\Stageplay.Runtime\Libraries\$(RuntimeIdentifier)\SDL3_mixer.lib" />
+        <NativeLibrary Include="..\..\Stageplay.Platform.Steamworks\Libraries\win64\steam_api64.lib" />
+    </ItemGroup>
+    
     <ItemGroup>
         <ProjectReference Include="..\..\Stageplay.Platform.Steamworks\Stageplay.Platform.Steamworks.csproj" />
         <ProjectReference Include="..\..\Stageplay.Runtime\Stageplay.Runtime.csproj" />
