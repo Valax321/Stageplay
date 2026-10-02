@@ -59,13 +59,10 @@ public sealed class ScenarioProcessor : AssetProcessor
             new CompiledScenario(runtimeGlobals, runtimeBytecode, runtimeStringTable);
 
         var destScenario = MakeOutputFileFromInput(input, ".bscn");
-        var destSourceMap = MakeOutputFileFromInput(input, ".lno");
-        
-        {
-            await using var destScenarioFile = destScenario.OpenWrite();
-            destScenarioFile.SetLength(0);
-            await BinaryObject.ToStreamAsync(compiledScript, destScenarioFile);
-        }
+
+        await using var destScenarioFile = destScenario.OpenWrite();
+        destScenarioFile.SetLength(0);
+        await BinaryObject.ToStreamAsync(compiledScript, destScenarioFile);
         
         return new AssetProcessorResult([destScenario.FullName]);
     }
