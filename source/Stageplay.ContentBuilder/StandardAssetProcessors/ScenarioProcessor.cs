@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using JetBrains.Annotations;
 using Radish.ContentBuilder.AssetProcessors;
 using Radish.ContentBuilder.Scenario;
@@ -44,7 +45,7 @@ public sealed class ScenarioProcessor : AssetProcessor
         
         foreach (var script in result.Scripts)
         {
-            await ParseScriptFile(script, scenarioDirectory, writer, commands, globals);
+            await ParseScriptFile(script, scenarioDirectory, writer, commands, globals, stringTable);
         }
         
         var entrypointStringIndex = stringTable.GetUniqueStringIndex(result.Entrypoint);
@@ -123,7 +124,7 @@ public sealed class ScenarioProcessor : AssetProcessor
     }
     
     private static async Task ParseScriptFile(FileInfo file, DirectoryInfo scenarioDirectory, BytecodeWriter writer, 
-        IReadOnlyDictionary<string, ICommand> commands, WritableGlobals globals)
+        IReadOnlyDictionary<string, ICommand> commands, WritableGlobals globals, WritableStringTable stringTable)
     {
         var scriptPath = Path.GetRelativePath(scenarioDirectory.FullName, file.FullName)
             .Replace('\\', '/'); // Without this the source map paths will differ between building on windows vs unix
@@ -144,7 +145,7 @@ public sealed class ScenarioProcessor : AssetProcessor
             var lineIndex = 0;
             while (await reader.ReadLineAsync() is { } line)
             {
-                ParseScriptLine(writer, commands, globals, ref lineIndex, line, scriptPath);
+                ParseScriptLine(writer, commands, globals, ref lineIndex, line, scriptPath, stringTable);
             }
         }
         finally
@@ -154,7 +155,7 @@ public sealed class ScenarioProcessor : AssetProcessor
     }
 
     private static void ParseScriptLine(BytecodeWriter writer, IReadOnlyDictionary<string, ICommand> commands, WritableGlobals globals,
-        ref int lineIndex, string line, string scriptPath)
+        ref int lineIndex, string line, string scriptPath, WritableStringTable stringTable)
     {
         lineIndex++;
 
@@ -193,44 +194,35 @@ public sealed class ScenarioProcessor : AssetProcessor
             if (!commands.TryGetValue(commandName, out var cmd))
                 throw new ScenarioParseException("SCR0003", scriptPath, lineIndex,
                     $"unknown command \"{commandName}\"");
-            
+
             try
             {
-                var data = cmd.Parse(new CommandParseContext(args, (scriptPath, lineIndex)));
-                
+                var cmdArgs = cmd.GetType().GetCustomAttribute<CommandArgumentsAttribute>();
+                if (cmdArgs is null)
+                    throw new Exception($"{cmd.GetType().FullName} missing {nameof(CommandArgumentsAttribute)}");
+
+                var data = cmd.Parse(new CommandParseContext(args, (scriptPath, lineIndex), stringTable,
+                    cmdArgs.Arguments));
+
                 // No-op
                 if (!data.HasValue)
                     return;
-
-                if (data.Value.Arguments.Count > byte.MaxValue)
-                    throw new ScenarioParseException("SCR0008", scriptPath, lineIndex,
-                        "too many arguments in command (max 255)");
-
+                
+                if (data.Value.Arguments.Count != cmdArgs.Arguments.Count)
+                    throw new ScenarioParseException("SCR0009", scriptPath, lineIndex,
+                        $"incorrect argument count, expected {cmdArgs.Arguments.Count} but got {data.Value.Arguments.Count}");
 
                 writer.WriteCommandPacket(new CommandPacket(data.Value.Name, (scriptPath, lineIndex),
-                    [.. MarshalArguments(data.Value, (scriptPath, lineIndex))]));
+                    data.Value.Arguments));
             }
             catch (CommandParseException ex)
             {
                 throw new ScenarioParseException($"SCR{ex.ErrorCode:0000}", scriptPath, lineIndex, ex.Message);
             }
-        }
-    }
-
-    private static IEnumerable<BytecodeCommandValue> MarshalArguments(CommandData command, (string, int) source)
-    {
-        foreach (var arg in command.Arguments)
-        {
-            yield return arg switch
+            catch (Exception ex)
             {
-                byte b => new BytecodeByte(b),
-                short s => new BytecodeShort(s),
-                int i => new BytecodeInteger(i),
-                float f => new BytecodeFloat(f),
-                bool b => new BytecodeBoolean(b),
-                string s => new BytecodeString(s),
-                _ => throw new ScenarioParseException("SCR0004", source.Item1, source.Item2, $"bad command argument of type {arg.GetType().FullName}")
-            };
+                throw new ScenarioParseException("MISC0001", scriptPath, lineIndex, ex.Message);
+            }
         }
     }
 }

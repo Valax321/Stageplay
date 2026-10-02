@@ -5,7 +5,7 @@ namespace Radish.ContentBuilder.Scenario;
 /// <summary>
 /// Build time representation of a scenario string table.
 /// </summary>
-internal sealed class WritableStringTable
+internal sealed class WritableStringTable : IWritableStringTable
 {
     private readonly Dictionary<string, int> _lookup = new(StringComparer.InvariantCulture);
     

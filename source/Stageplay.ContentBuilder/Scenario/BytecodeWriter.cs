@@ -28,7 +28,7 @@ internal record Label(string LabelName) : IBytecodeRecord
 internal record CommandPacket(
     string CommandName,
     (string File, int Line) DebugInfo,
-    params IReadOnlyList<BytecodeCommandValue> Arguments)
+    params IReadOnlyList<ArgumentValue> Arguments)
     : IBytecodeRecord
 {
     public void WriteBytes(BytecodeWriterState state)
@@ -37,13 +37,9 @@ internal record CommandPacket(
         state.SourceMap.Add((int)state.Output.Position, new SourceLocation(debugInfoFileStringIndex, DebugInfo.Line));
 
         var commandNameStringIndex = state.Context.StringTable.GetUniqueStringIndex(CommandName);
-        var argCount = (byte)Arguments.Count;
-        
         state.Output.Write(BitConverter.GetBytes(commandNameStringIndex));
-        state.Output.Write(new ReadOnlySpan<byte>(ref argCount));
-        
         foreach (var arg in Arguments)
-            state.Output.Write(arg.ToBytes(state));
+            state.Output.Write(arg.ToBytes());
     }
 }
 

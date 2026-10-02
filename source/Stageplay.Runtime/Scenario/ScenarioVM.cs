@@ -1,4 +1,6 @@
+using System.Buffers;
 using System.Collections.Immutable;
+using System.Reflection;
 using JetBrains.Annotations;
 using Radish.Debugger;
 using Radish.Resources;
@@ -151,18 +153,30 @@ public sealed class ScenarioVM
             Halt();
             return KeepExecuting.No;
         }
+
+        var cmdArgsInfo = cmd.GetType().GetCustomAttribute<CommandArgumentsAttribute>();
+        if (cmdArgsInfo is null)
+            throw new InvalidOperationException(
+                $"{GetSourceLocationString(_location)}: command {cmd.GetType().FullName} must have {nameof(CommandArgumentsAttribute)}");
         
-        var argCount = _reader.ReadByte();
-        _reader.ReadCount = 0;
+        var args = ArrayPool<ArgumentValue>.Shared.Rent(cmdArgsInfo.Arguments.Count);
+        for (var i = 0; i < cmdArgsInfo.Arguments.Count; ++i)
+        {
+            args[i] = cmdArgsInfo.Arguments[i] switch
+            {
+                CommandArgumentType.Byte => ArgumentValue.OfByte(_reader.ReadByte()),
+                CommandArgumentType.Integer => ArgumentValue.OfInteger(_reader.ReadInteger()),
+                CommandArgumentType.Float => ArgumentValue.OfFloat(_reader.ReadFloat()),
+                CommandArgumentType.String => ArgumentValue.OfString(_reader.ReadStringIndex()),
+                CommandArgumentType.Boolean => ArgumentValue.OfBoolean(_reader.ReadBoolean()),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
         
-        var ctx = new CommandExecutionContext(_reader, this, argCount);
+        var ctx = new CommandExecutionContext(this, new ReadOnlySpan<ArgumentValue>(args, 0, cmdArgsInfo.Arguments.Count));
         var result = cmd.BeginExecute(in ctx);
         
-        if (_reader.ReadCount != argCount)
-            throw new InvalidOperationException(
-                $"Command {commandName} at {GetSourceLocationString(_location)} read fewer arguments than were written by the compiler. Expected {argCount}, got {_reader.ReadCount}");
-        _reader.ReadCount = 0;
-        
+        ArrayPool<ArgumentValue>.Shared.Return(args);
         return HandleCommandResult(result);
     }
 
